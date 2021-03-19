@@ -1,4 +1,4 @@
-// Generated from C:/Users/RSech/OneDrive/Dokumenter/GitHub/Gio\SyntaxAnalysis.g4 by ANTLR 4.9.1
+// Generated from C:/Users/m-s-t/Documents/GitHub/Gio\SyntaxAnalysis.g4 by ANTLR 4.9.1
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -225,4 +225,11 @@ public interface SyntaxAnalysisVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFuncCall(SyntaxAnalysisParser.FuncCallContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code parameters}
+	 * labeled alternative in {@link SyntaxAnalysisParser#param}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParameters(SyntaxAnalysisParser.ParametersContext ctx);
 }

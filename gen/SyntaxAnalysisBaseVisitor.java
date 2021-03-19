@@ -1,4 +1,4 @@
-// Generated from C:/Users/RSech/OneDrive/Dokumenter/GitHub/Gio\SyntaxAnalysis.g4 by ANTLR 4.9.1
+// Generated from C:/Users/m-s-t/Documents/GitHub/Gio\SyntaxAnalysis.g4 by ANTLR 4.9.1
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
@@ -227,4 +227,11 @@ public class SyntaxAnalysisBaseVisitor<T> extends AbstractParseTreeVisitor<T> im
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitFuncCall(SyntaxAnalysisParser.FuncCallContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitParameters(SyntaxAnalysisParser.ParametersContext ctx) { return visitChildren(ctx); }
 }

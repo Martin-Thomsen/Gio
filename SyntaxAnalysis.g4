@@ -3,17 +3,17 @@ grammar SyntaxAnalysis;
 prog:               (func | eventHand)* EOF
                     ;
 
-func:               'function' ID '(' (expression (',' expression)*)? ')' block 'endFunction'       #function
+func:               'function' ID '(' param ')' block 'endFunction'       #function
                     ;
 
-eventHand:          'when' ID '(' (expression (',' expression)*)? ')' block 'endWhen'               #when
+eventHand:          'when' ID '(' param ')' block 'endWhen'               #when
                     ;
 
-block:              stmt*                                                                           #blk
+block:              stmt*                                                 #blk
                     ;
 
 stmt:               'if' '(' expression ')' 'do' block ('else if' '(' expression ')' 'do' block)* ('else do' block)? 'endIf'    #if
-				    | 'repeat' '(' (DIGITS || ID) ')' block 'endRepeat'                                                         #rep
+				    | 'repeat' '(' (DIGITS | ID) ')' block 'endRepeat'                                                          #rep
 				    | 'repeatIf' '(' expression ')' block 'endRepeatIf'                                                         #rep_if
 				    | 'repeatUntil' '(' expression ')' block 'endRepeatUntil'                                                   #rep_until
                     | func_Call                                                                                                 #func_stmt
@@ -35,7 +35,7 @@ expression:         primary                                                     
                     | func_Call                                                     #func_expr
                     | expression bop=('*'|'/'|'%') expression                       #mul_div_mod
                     | expression bop=('+'|'-') expression                           #add_sub
-                    | expression bop=('<=' | '>=' | '>' | '<') expression           #le_ge_lt_gt
+                    | expression bop=('<=' | '>=' | '<' | '>') expression           #le_ge_lt_gt
                     | expression bop=('==' | '!=') expression                       #equal_notequal
                     | expression bop='&&' expression                                #logical_and
                     | expression bop='||' expression                                #logical_or
@@ -48,7 +48,10 @@ primary:            '(' expression ')'      #parens
                     | BOOL                  #bool
                     ;
 
-func_Call:          ID '(' (expression (',' expression)*)? ')' '.'                  #funcCall
+func_Call:          ID '(' param ')' '.'                                            #funcCall
+                    ;
+
+param:              (expression (',' expression)*)?                                 #parameters
                     ;
 
 //LEXICAL PART
@@ -61,6 +64,22 @@ LETTER:             'a'..'z'
                     | 'A'..'Z';
 LETTERORDIGIT:      LETTER
                     | DIGIT;
+
+MUL:                '*';
+DIV:                '/';
+ADD:                '+';
+SUB:                '-';
+MOD:                '%';
+GE:                 '>=';
+LE:                 '<=';
+GT:                 '>';
+LT:                 '<';
+EQUALS:             '==';
+NOTEQUALS:          '!=';
+AND:                '&&';
+OR:                 '||';
+QMARK:              '?';
+COLON:              ':';
 
 WS:                 [ \t\r\n]       -> skip;
 LINE_COMMENT:       '//' ~[\r\n]*   -> skip;
