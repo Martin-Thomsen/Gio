@@ -1,40 +1,55 @@
 grammar SyntaxAnalysis;
 //PARSER PART
-prog:               (func | eventHand)* EOF;
+prog:               (func | eventHand)* EOF
+                    ;
 
-func:               'function' ID '(' (expression (',' expression)*)? ')' block 'endFunction';
-eventHand:          'when' ID '(' (expression (',' expression)*)? ')' block 'endWhen';
+func:               'function' ID '(' (expression (',' expression)*)? ')' block 'endFunction'       #function
+                    ;
 
-block:              stmt*;
-stmt:               'if' '(' expression ')' 'do' block ('else if' '(' expression ')' 'do' block)* ('else do' block)? 'endIf'
-				    | 'repeat' '(' (DIGITS || ID) ')' block 'endRepeat'
-				    | 'repeatIf' '(' expression ')' block 'endRepeatIf'
-				    | 'repeatUntil' '(' expression ')' block 'endRepeatUntil'
-                    | funcCall_Stmt
-				    | ID '=' (expression | incr_Stmt | decr_Stmt) '.'
-				    | incr_Stmt
-				    | decr_Stmt;
+eventHand:          'when' ID '(' (expression (',' expression)*)? ')' block 'endWhen'               #when
+                    ;
 
-funcCall_Stmt:      ID '(' (expression (',' expression)*)? ')' '.';
-incr_Stmt:          '++' ID
-                    | ID '++';
-decr_Stmt:          '--' ID
-                    | ID '--';
+block:              stmt*                                                                           #blk
+                    ;
 
-expression:         primary
-                    | expression '[' expression ']'
-                    | funcCall_Stmt
-                    | expression bop=('*'|'/'|'%') expression
-                    | expression bop=('+'|'-') expression
-                    | expression bop=('<=' | '>=' | '>' | '<') expression
-                    | expression bop=('==' | '!=') expression
-                    | expression bop='&&' expression
-                    | expression bop='||' expression
-                    | <assoc=right> expression bop='?' expression ':' expression;
-primary:            '(' expression ')'
-                    | DIGITS
-                    | ID
-                    | BOOL;
+stmt:               'if' '(' expression ')' 'do' block ('else if' '(' expression ')' 'do' block)* ('else do' block)? 'endIf'    #if
+				    | 'repeat' '(' (DIGITS || ID) ')' block 'endRepeat'                                                         #rep
+				    | 'repeatIf' '(' expression ')' block 'endRepeatIf'                                                         #rep_if
+				    | 'repeatUntil' '(' expression ')' block 'endRepeatUntil'                                                   #rep_until
+                    | func_Call                                                                                                 #func_stmt
+				    | ID '=' (expression | incr_Stmt | decr_Stmt) '.'                                                           #assign
+				    | incr_Stmt                                                                                                 #incr
+				    | decr_Stmt                                                                                                 #decr
+				    ;
+
+incr_Stmt:          '++' ID         #pre_incr
+                    | ID '++'       #post_incr
+                    ;
+
+decr_Stmt:          '--' ID         #pre_decr
+                    | ID '--'       #post_decr
+                    ;
+
+expression:         primary                                                         #prim
+                    | expression '[' expression ']'                                 #array
+                    | func_Call                                                     #func_expr
+                    | expression bop=('*'|'/'|'%') expression                       #mul_div_mod
+                    | expression bop=('+'|'-') expression                           #add_sub
+                    | expression bop=('<=' | '>=' | '>' | '<') expression           #le_ge_lt_gt
+                    | expression bop=('==' | '!=') expression                       #equal_notequal
+                    | expression bop='&&' expression                                #logical_and
+                    | expression bop='||' expression                                #logical_or
+                    | <assoc=right> expression bop='?' expression ':' expression    #tertiary
+                    ;
+
+primary:            '(' expression ')'      #parens
+                    | DIGITS                #digits
+                    | ID                    #id
+                    | BOOL                  #bool
+                    ;
+
+func_Call:          ID '(' (expression (',' expression)*)? ')' '.'                  #funcCall
+                    ;
 
 //LEXICAL PART
 BOOL:               'true' | 'false';
