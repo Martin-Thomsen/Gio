@@ -121,6 +121,13 @@ public interface SyntaxAnalysisVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPost_decr(SyntaxAnalysisParser.Post_decrContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code returnStmt}
+	 * labeled alternative in {@link SyntaxAnalysisParser#return_Stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnStmt(SyntaxAnalysisParser.ReturnStmtContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code logical_or}
 	 * labeled alternative in {@link SyntaxAnalysisParser#expression}.
 	 * @param ctx the parse tree
@@ -226,10 +233,45 @@ public interface SyntaxAnalysisVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFuncCall(SyntaxAnalysisParser.FuncCallContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code fparameters}
+	 * labeled alternative in {@link SyntaxAnalysisParser#fparam}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFparameters(SyntaxAnalysisParser.FparametersContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code parameters}
 	 * labeled alternative in {@link SyntaxAnalysisParser#param}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitParameters(SyntaxAnalysisParser.ParametersContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code void_ftype}
+	 * labeled alternative in {@link SyntaxAnalysisParser#ftype}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVoid_ftype(SyntaxAnalysisParser.Void_ftypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code type_ftype}
+	 * labeled alternative in {@link SyntaxAnalysisParser#ftype}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitType_ftype(SyntaxAnalysisParser.Type_ftypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code num_type}
+	 * labeled alternative in {@link SyntaxAnalysisParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNum_type(SyntaxAnalysisParser.Num_typeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code bool_type}
+	 * labeled alternative in {@link SyntaxAnalysisParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBool_type(SyntaxAnalysisParser.Bool_typeContext ctx);
 }

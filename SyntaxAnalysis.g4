@@ -3,10 +3,10 @@ grammar SyntaxAnalysis;
 prog:               (func | eventHand)* EOF
                     ;
 
-func:               'function' ID '(' param ')' block 'endFunction'       #function
+func:               'function' ftype ID '(' fparam ')' block return_Stmt 'endFunction'       #function
                     ;
 
-eventHand:          'when' ID '(' param ')' block 'endWhen'               #when
+eventHand:          'when' ID '(' fparam ')' block 'endWhen'               #when
                     ;
 
 block:              stmt*                                                 #blk
@@ -18,8 +18,8 @@ stmt:               'if' '(' expression ')' 'do' block ('else if' '(' expression
 				    | 'repeatUntil' '(' expression ')' block 'endRepeatUntil'                                                   #rep_until
                     | func_Call                                                                                                 #func_stmt
 				    | ID '=' (expression | incr_Stmt | decr_Stmt) '.'                                                           #assign
-				    | incr_Stmt                                                                                                 #incr
-				    | decr_Stmt                                                                                                 #decr
+				    | incr_Stmt '.'                                                                                             #incr
+				    | decr_Stmt '.'                                                                                             #decr
 				    ;
 
 incr_Stmt:          '++' ID         #pre_incr
@@ -28,6 +28,9 @@ incr_Stmt:          '++' ID         #pre_incr
 
 decr_Stmt:          '--' ID         #pre_decr
                     | ID '--'       #post_decr
+                    ;
+
+return_Stmt:        'return' expression                                             #returnStmt
                     ;
 
 expression:         primary                                                         #prim
@@ -51,7 +54,18 @@ primary:            '(' expression ')'      #parens
 func_Call:          ID '(' param ')' '.'                                            #funcCall
                     ;
 
+fparam:             (type ID (',' type ID)*)?                                       #fparameters
+                    ;
+
 param:              (expression (',' expression)*)?                                 #parameters
+                    ;
+
+ftype:              'void'                                                          #void_ftype
+                    | type                                                          #type_ftype
+                    ;
+
+type:               'num'                                                           #num_type
+                    | 'bool'                                                        #bool_type
                     ;
 
 //LEXICAL PART
