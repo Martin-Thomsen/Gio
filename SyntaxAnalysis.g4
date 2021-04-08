@@ -3,23 +3,24 @@ grammar SyntaxAnalysis;
 prog:               (func | eventHand)* EOF
                     ;
 
-func:               'function' ftype ID '(' fparam ')' block return_Stmt 'endFunction'       #function
+func:               'function' ftype ID '(' fparam ')' block 'endFunction'      #function
                     ;
 
-eventHand:          'when' ID '(' fparam ')' block 'endWhen'               #when
+eventHand:          'when' ID '(' fparam ')' block 'endWhen'                    #when
                     ;
 
-block:              stmt*                                                 #blk
+block:              stmt*                                                       #blk
                     ;
 
 stmt:               'if' '(' expression ')' 'do' block ('else if' '(' expression ')' 'do' block)* ('else do' block)? 'endIf'    #if
 				    | 'repeat' '(' (DIGITS | ID) ')' block 'endRepeat'                                                          #rep
 				    | 'repeatIf' '(' expression ')' block 'endRepeatIf'                                                         #rep_if
-				    | 'repeatUntil' '(' expression ')' block 'endRepeatUntil'                                                   #rep_until
-                    | func_Call                                                                                                 #func_stmt
+				    | 'repeat' '(' expression ')' block 'until' '(' expression ')'                                              #rep_until
+                    | func_Call '.'                                                                                             #func_stmt
 				    | ID '=' (expression | incr_Stmt | decr_Stmt) '.'                                                           #assign
 				    | incr_Stmt '.'                                                                                             #incr
 				    | decr_Stmt '.'                                                                                             #decr
+				    | return_Stmt '.'                                                                                           #ret
 				    ;
 
 incr_Stmt:          '++' ID         #pre_incr
@@ -34,7 +35,6 @@ return_Stmt:        'return' expression                                         
                     ;
 
 expression:         primary                                                         #prim
-                    | expression '[' expression ']'                                 #array
                     | func_Call                                                     #func_expr
                     | expression bop=('*'|'/'|'%') expression                       #mul_div_mod
                     | expression bop=('+'|'-') expression                           #add_sub

@@ -1,5 +1,6 @@
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collection;
 import gen.*;
 
 public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
@@ -54,52 +55,71 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
     /* 'repeat' '(' (DIGITS | ID) ')' block 'endRepeat' */
     @Override public SyntaxAnalysisType visitRep(SyntaxAnalysisParser.RepContext ctx) {
-        int val;
-        if(ctx.ID() != null)
-            visit(ctx.ID());
-        else
-            visit(ctx.DIGITS());
+        if(ctx.ID() != null) {
+            if (!visit(ctx.ID()) instanceof SyntaxAnalysisNum) {
+                // error
+            }
+        }
+        else {
+            if(!visit(ctx.DIGITS()) instanceof SyntaxAnalysisNum) {
+                // error
+            }
+        }
 
-        visit(ctx.block());
+        if(!visit(block) instanceof SyntaxAnalysisVoid) {
+            // error
+        }
 
         return new SyntaxAnalysisVoid();
     }
 
     /* 'repeatIf' '(' expression ')' block 'endRepeatIf' */
     @Override public SyntaxAnalysisType visitRep_if(SyntaxAnalysisParser.Rep_ifContext ctx) {
+        if(!visit(expr) instanceof SyntaxAnalysisBool) {
+                // error
+        }
 
-        visit(ctx.block());
+        if(!visit(block) instanceof SyntaxAnalysisVoid) {
+                // error
+        }
 
         return new SyntaxAnalysisVoid();
     }
 
     /* 'repeatUntil' '(' expression ')' block 'endRepeatUntil' */
     @Override public SyntaxAnalysisType visitRep_until(SyntaxAnalysisParser.Rep_untilContext ctx) {
-        do {
-            visit(ctx.block(0));
-        } while(!visit(ctx.expr(0)));
+        if(!visit(expr) instanceof SyntaxAnalysisBool) {
+            // error
+        }
+
+        if(!visit(block) instanceof SyntaxAnalysisVoid) {
+            // error
+        }
+
         return new SyntaxAnalysisVoid();
     }
 
     /* func_Call */
     @Override public SyntaxAnalysisType visitFunc_stmt(SyntaxAnalysisParser.Func_stmtContext ctx) {
-        visit(ctx.func_Call(0));
+        visit(ctx.func_Call());
         return new SyntaxAnalysisVoid();
     }
 
     /* ID '=' (expression | incr_Stmt | decr_Stmt) '.' */
     @Override public SyntaxAnalysisType visitAssign(SyntaxAnalysisParser.AssignContext ctx) {
         String id = ctx.ID().getText();
-        Value val;
+        SyntaxAnalysisType type;
 
         if(ctx.expression() != null)
-            val = new Value(visit(ctx.expression()));
+            type = visit(ctx.expression());
         else if(ctx.incr_Stmt() != null)
-            val = new Value(visit(ctx.incr.Stmt()));
+            type = visit(ctx.incr.Stmt());
+        else if(ctx.decr_Stmt() != null)
+            type = visit(ctx.decr_Stmt());
         else
-            val = new Value(visit(ctx.decr_Stmt()));
+            // error
 
-        memory.put(id, val);
+        memory.put(id, type);
         return new SyntaxAnalysisVoid();
     }
 
@@ -111,29 +131,6 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     /* decr_Stmt */
     @Override public SyntaxAnalysisType visitDecr(SyntaxAnalysisParser.DecrContext ctx) {
         return visit(ctx.decr_Stmt());
-    }
-
-    /* '++' ID */
-    @Override public SyntaxAnalysisType visitPre_incr(SyntaxAnalysisParser.Pre_incrContex ctx) {
-        String id = ctx.ID().getText();
-        if(memory.containsKey(id)){
-            Value val = new Value(memory.get(id));
-            val.value = val.value + 1;
-            memory.replace(id, value);
-            return value;
-        }
-        return new SyntaxAnalysisVoid();
-    }
-
-    /* ID '++' */
-    @Override public SyntaxAnalysisType visitPost_incr(SyntaxAnalysisParser_Post.incrContext ctx) {
-        String id = ctx.ID().getText();
-        if(memory.containsKey(id)){
-            Value val = new Value(memory.get(id));
-            memory.replace(id, value + 1);
-            return value;
-        }
-        return new SyntaxAnalysisVoid();
     }
 
     /* 'return' expression */
@@ -149,106 +146,152 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
         return new SyntaxAnalysisVoid();
     }
 
+    /* '++' ID */
+    @Override public SyntaxAnalysisType visitPre_incr(SyntaxAnalysisParser.Pre_incrContex ctx) {
+        if(!visit(ctx.ID()) instanceof SyntaxAnalysisNum) {
+            // error
+        }
+        return new SyntaxAnalysisVoid();
+    }
+
+    /* ID '++' */
+    @Override public SyntaxAnalysisType visitPost_incr(SyntaxAnalysisParser_Post.incrContext ctx) {
+        if(!visit(ctx.ID()) instanceof SyntaxAnalysisNum) {
+            // error
+        }
+        return new SyntaxAnalysisVoid();
+    }
+
     /* '--' ID */
     @Override public SyntaxAnalysisType visitPre_decr(SyntaxAnalysisParser.Pre_decrContex ctx) {
-        String id = ctx.ID().getText();
-        if(memory.containsKey(id)){
-            Value val = new Value(memory.get(id));
-            val.value = val.value - 1;
-            memory.replace(id, value);
-            return value;
+        if(!visit(ctx.ID()) instanceof SyntaxAnalysisNum) {
+            // error
         }
         return new SyntaxAnalysisVoid();
     }
 
     /* ID '--' */
     @Override public SyntaxAnalysisType visitPost_decr(SyntaxAnalysisParser.Post_decrContext ctx) {
-        String id = ctx.ID().getText();
-        if(memory.containsKey(id)){
-            Value val = new Value(memory.get(id));
-            memory.replace(id, value - 1);
-            return value;
+        if(!visit(ctx.ID()) instanceof SyntaxAnalysisNum) {
+            // error
         }
         return new SyntaxAnalysisVoid();
     }
 
     /* primary */
     @Override public SyntaxAnalysisType visitPrim(SyntaxAnalysisParser.PrimContext ctx) {
-        visit(ctx.primary());
-        return new SyntaxAnalysisVoid();
-    }
-
-    /* expression '[' expression ']' */
-    @Override public SyntaxAnalysisType visitArray(SyntaxAnalysisParser.ArrayContext ctx) {
-        /* TO BE IMPLEMENTED */
+        return visit(ctx.primary());
     }
 
     /* func_Call */
     @Override public SyntaxAnalysisType visitFunc_expr(SyntaxAnalysisParser.Func_exprContext ctx) {
-        visit(ctx.func_Call(0));
-        return new SyntaxAnalysisVoid();
+        return visit(ctx.func_Call());
     }
 
     /* expression bop=('*'|'/'|'%') expression */
     @Override public SyntaxAnalysisType visitMul_div_mod(SyntaxAnalysisParser.Mul_div_modContex ctx) {
-        int left = visit(ctx.expression(0));
-        int right = visit(ctx.expression(1));
-        if (ctx.bop.getType() == SyntaxAnalysisParser.MUL ) return left * right;
-        else if (ctx.bop.getType() == SyntaxAnalysisParser.DIV) return left / right;
-        return left % right;
+        if(!visit(ctx.expression(0) instanceof SyntaxAnalysisNum) {
+            // error
+        }
+
+        if(!visit(ctx.expression(1) instanceof SyntaxAnalysisNum) {
+            // error
+        }
+
+        return new SyntaxAnalysisNum();
     }
 
     /* expression bop=('+'|'-') expression */
     @Override public SyntaxAnalysisType visitAdd_sub(SyntaxAnalysisParser.Add_subContext ctx) {
-        int left = visit(ctx.expression(0));
-        int right = visit(ctx.expression(1));
-        if (ctx.bop.getType() == SyntaxAnalysisParser.ADD ) return left + right;
-        return left - right;
+        if(!visit(ctx.expression(0) instanceof SyntaxAnalysisNum) {
+            // error
+        }
+
+        if(!visit(ctx.expression(1) instanceof SyntaxAnalysisNum) {
+            // error
+        }
+
+        return new SyntaxAnalysisNum();
     }
 
     /* expression bop=('<=' | '>=' | '<' | '>') expression */
     @Override public SyntaxAnalysisType visitLe_ge_lt_gt(SyntaxAnalysisParser.Le_ge_lt_gtContext ctx) {
-        int left = visit(ctx.expression(0));
-        int right = visit(ctx.expression(1));
-        if (ctx.bop.getType() == SyntaxAnalysisParser.LE ) return left <= right;
-        else if (ctx.bop.getType() == SyntaxAnalysisParser.GE) return left >= right;
-        else if (ctx.bop.getType() == SyntaxAnalysisParser.LT) return left < right;
-        return left > right;
+        if(!visit(ctx.expression(0) instanceof SyntaxAnalysisNum) {
+            // error
+        }
+
+        if(!visit(ctx.expression(1) instanceof SyntaxAnalysisNum) {
+            // error
+        }
+
+        return new SyntaxAnalysisNum();
     }
 
     /* expression bop=('==' | '!=') expression */
     @Override public SyntaxAnalysisType visitEqual_notequal(SyntaxAnalysisParser.Equal_notequalContext ctx) {
-        int left = visit(ctx.expression(0));
-        int right = visit(ctx.expression(1));
-        if (ctx.bop.getType() == SyntaxAnalysisParser.EQUALS ) return left == right;
-        return left != right;
+        SyntaxAnalysisType expr1 = visit(ctx.expression(0));
+        SyntaxAnalysisType expr2 = visit(ctx.expression(1));
+
+        if(!expr1 instanceof SyntaxAnalysisNum || !expr1 instanceof SyntaxAnalysisBool) {
+            // error
+        }
+
+        if(!expr2 instanceof SyntaxAnalysisNum || !expr2 instanceof SyntaxAnalysisBool) {
+            // error
+        }
+
+        return new SyntaxAnalysisBool();
     }
 
     /* expression bop='&&' expression */
     @Override public SyntaxAnalysisType visitLogical_and(SyntaxAnalysisParser.Logical_andContext ctx) {
-        int left = visit(ctx.expression(0));
-        int right = visit(ctx.expression(1));
-        return left && right;
+        if(!visit(ctx.expression(0) instanceof SyntaxAnalysisBool) {
+            // error
+        }
+
+        if(!visit(ctx.expression(1) instanceof SyntaxAnalysisBool) {
+            // error
+        }
+
+        return new SyntaxAnalysisBool();
     }
 
     /* expression bop='||' expression */
     @Override public SyntaxAnalysisType visitLogical_or(SyntaxAnalysisParser.Logical_orContext ctx) {
-        int left = visit(ctx.expression(0));
-        int right = visit(ctx.expression(1));
-        return left || right;
+        if(!visit(ctx.expression(0) instanceof SyntaxAnalysisBool) {
+            // error
+        }
+
+        if(!visit(ctx.expression(1) instanceof SyntaxAnalysisBool) {
+            // error
+        }
+
+        return new SyntaxAnalysisBool();
     }
 
     /* <assoc=right> expression bop='?' expression ':' expression */
     @Override public SyntaxAnalysisType visitTertiary(SyntaxAnalysisParser.TertiaryContext ctx) {
-        if(visit(ctx.expression(0)))
-            return visit(ctx.expression(1));
-        else
-            return visit(ctx.expression(2));
+        if(!visit(ctx.expression(0) instanceof SyntaxAnalysisBool) {
+            // error
+        }
+
+        if(!visit(ctx.expression(1) instanceof SyntaxAnalysisType) {
+            // error
+        }
+
+        if(!visit(ctx.expression(2) instanceof SyntaxAnalysisType) {
+            // error
+        }
+
+        return new SyntaxAnalysisVoid();
     }
 
     /* '(' expression ')' */
     @Override public SyntaxAnalysisType visitParens(SyntaxAnalysisParser.ParensContext ctx) {
-        visit(ctx.expression());
+        if(!visit(ctx.expression()) instanceof SyntaxAnalysisNum) {
+            // error
+        }
+
         return new SyntaxAnalysisVoid();
     }
 
@@ -276,7 +319,8 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
     /* ID '(' param ')' '.' */
     @Override public SyntaxAnalysisType visitFuncCall(SyntaxAnalysisParser.FuncCallContext ctx) {
-        /* TO BE IMPLEMENTED */
+        visit(param);
+        return new SyntaxAnalysisVoid();
     }
 
     /* (type ID (',' type ID)*)? */
@@ -291,10 +335,38 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
     /* (expression (',' expression)*)? */
     @Override public SyntaxAnalysisType visitParameters(SyntaxAnalysisParser.ParametersContext ctx) {
+        String funcID = ctx.getParent().ID().getText();
+        SyntaxAnalysisFuncType func = fEnv.get(funcID);
+        Collection funcParams = func.getParameters().values();
+        int i = 0;
+
         for(SyntaxAnalysisParser.ExpressionContext expr : ctx.expression()) {
-            visit(expr);
+            if(!visit(expr) instanceof funcParams(i)) {
+                // error;
+            }
+            i++;
         }
 
         return new SyntaxAnalysisVoid();
+    }
+
+    /* 'void' */
+    @Override public SyntaxAnalysisType visitVoid_ftype(SyntaxAnalysisParser.Void_ftypeContext ctx) {
+        return new SyntaxAnalysisVoid();
+    }
+
+    /* type */
+    @Override public SyntaxAnalysisType visitType_ftype(SyntaxAnalysisParser.Type_ftypeContext ctx) {
+        return visit(ctx.type());
+    }
+
+    /* 'num' */
+    @Override public SyntaxAnalysisType visitNum_type(SyntaxAnalysisParser.Num_typeContext ctx) {
+        return new SyntaxAnalysisNum();
+    }
+
+    /* 'bool' */
+    @Override public SyntaxAnalysisType visitBool_type(SyntaxAnalysisParser.Bool_typeContext ctx) {
+        return new SyntaxAnalysisBool();
     }
 }

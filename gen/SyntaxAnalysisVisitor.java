@@ -93,6 +93,13 @@ public interface SyntaxAnalysisVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDecr(SyntaxAnalysisParser.DecrContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code ret}
+	 * labeled alternative in {@link SyntaxAnalysisParser#stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRet(SyntaxAnalysisParser.RetContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code pre_incr}
 	 * labeled alternative in {@link SyntaxAnalysisParser#incr_Stmt}.
 	 * @param ctx the parse tree
@@ -162,13 +169,6 @@ public interface SyntaxAnalysisVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFunc_expr(SyntaxAnalysisParser.Func_exprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code array}
-	 * labeled alternative in {@link SyntaxAnalysisParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArray(SyntaxAnalysisParser.ArrayContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code equal_notequal}
 	 * labeled alternative in {@link SyntaxAnalysisParser#expression}.
