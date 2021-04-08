@@ -105,8 +105,9 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
         return new SyntaxAnalysisVoid();
     }
 
-    /* ID '=' (expression | incr_Stmt | decr_Stmt) '.' */
+    /* type ID '=' (expression | incr_Stmt | decr_Stmt) '.' */
     @Override public SyntaxAnalysisType visitAssign(SyntaxAnalysisParser.AssignContext ctx) {
+        SyntaxAnalysisType assignType = ctx.type();
         String id = ctx.ID().getText();
         SyntaxAnalysisType type;
 
@@ -118,6 +119,10 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
             type = visit(ctx.decr_Stmt());
         else
             // error
+
+        if(!type instanceof assignType) {
+            // error
+        }
 
         memory.put(id, type);
         return new SyntaxAnalysisVoid();

@@ -17,7 +17,7 @@ stmt:               'if' '(' expression ')' 'do' block ('else if' '(' expression
 				    | 'repeatIf' '(' expression ')' block 'endRepeatIf'                                                         #rep_if
 				    | 'repeat' '(' expression ')' block 'until' '(' expression ')'                                              #rep_until
                     | func_Call '.'                                                                                             #func_stmt
-				    | ID '=' (expression | incr_Stmt | decr_Stmt) '.'                                                           #assign
+				    | type ID '=' (expression | incr_Stmt | decr_Stmt) '.'                                                      #assign
 				    | incr_Stmt '.'                                                                                             #incr
 				    | decr_Stmt '.'                                                                                             #decr
 				    | return_Stmt '.'                                                                                           #ret
