@@ -28,4 +28,8 @@ public class SyntaxAnalysisFuncType extends SyntaxAnalysisType {
     public Map<String, SyntaxAnalysisType> getParameters() {
         return _params;
     }
+
+    public String getTypeName() {
+        return "FUNC";
+    }
 }
