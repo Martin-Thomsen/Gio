@@ -15,7 +15,7 @@ block:              stmt*                                                       
 stmt:               'if' '(' expression ')' 'do' block ('else if' '(' expression ')' 'do' block)* ('else do' block)? 'endIf'    #if
 				    | 'repeat' '(' (DIGITS | ID) ')' block 'endRepeat'                                                          #rep
 				    | 'repeatIf' '(' expression ')' block 'endRepeatIf'                                                         #rep_if
-				    | 'repeat' '(' expression ')' block 'until' '(' expression ')'                                              #rep_until
+				    | 'repeat' block 'until' '(' expression ')'                                              #rep_until
                     | func_Call '.'                                                                                             #func_stmt
 				    | type ID '=' (expression | incr_Stmt | decr_Stmt) '.'                                                      #assign
 				    | incr_Stmt '.'                                                                                             #incr
