@@ -1,6 +1,7 @@
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.lang.StringBuilder;
 import gen.*;
 
 public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
@@ -13,7 +14,10 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
         String content = visit(ctx.block());
         String returnStmt = visit(ctx.return_Stmt());
 
-        String output = ftype + id + "(" + params + ") {\n" + content + returnStmt + "}\n";
+        StringBuilder op = new StringBuilder();
+        op.append(ftype).append(id).append("(").append(params).append(") {\n").append(content).append(returnStmt).append("}\n");
+        //String output = ftype + id + "(" + params + ") {\n" + content + returnStmt + "}\n";
+        String output = op.ToString();
 
         return output;
     }
@@ -24,29 +28,36 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
         String params = visit(ctx.param());
         String content = visit(ctx.block());
 
-        String output = "public void " + id + "(" + params + ") {\n" + content + "}\n";
+        StringBuilder op = new StringBuilder();
+        op.append("public void ").append(id).append("(").append(params).append(") {\n").append(content).append("}\n");
+        //String output = "public void " + id + "(" + params + ") {\n" + content + "}\n";
+        String output = op.ToString();
+
+        return output;
     }
 
     /* stmt* */
     @Override public String visitBlk(SyntaxAnalysisParser.BlkContext ctx) {
-        String output = "";
+        StringBuilder op = new StringBuilder();
 
         for(SyntaxAnalysisParser.StmtContext stmt : ctx.stmt()) {
-            output += visit(stmt);
+            op.append(visit(stmt));
         }
+        String output = op.ToString();
 
         return output;
     }
 
     /* 'if' '(' expression ')' 'do' block ('else if' '(' expression ')' 'do' block)* ('else do' block)? 'endIf' */
     @Override public String visitIf(SyntaxAnalysisParser.IfContext ctx) {
-        String output = "if(";
+        StringBuilder op = new StringBuilder();
+        op.append("if(");
 
         String expr1 = visit(ctx.expression(0));
-        output += expr1 + ") {\n";
+        op.append(expr1).append(") {\n");
 
         String block1 = visit(ctx.block(0));
-        output += block1 + "}\n";
+        op.append(block1).append("}\n");
 
         int exprAmount = 1;
         int blockAmount = 1;
@@ -56,64 +67,73 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
                 String expr = visit(ctx.expression(exprAmount));
                 String block = visit(ctx.block(blockAmount));
 
-                output += "else if(" + expr + ") {\n" + block + "}\n";
+                op.append("else if(").append(expr).append(") {\n").append(block).append("}\n");
                 expr++;
                 block++;
             }
             else if(ctx.block(blockAmount) != null) {
                 String block = visit(ctx.block(blockAmount));
 
-                output += "else {\n" + block + "}\n";
+                op.append("else {\n").append(block).append("}\n");
                 break;
             }
             else {
                 break;
             }
         }
+        String output = op.ToString();
+
+        return output;
     }
 
     /* 'repeat' '(' (DIGITS | ID) ')' block 'endRepeat' */
     @Override public String visitRep(SyntaxAnalysisParser.RepContext ctx) {
-        String output = "for(int i = 0; i < ";
+        StringBuilder op = new StringBuilder();
+        op.append("for(int i = 0; i < ");
 
         if(ctx.ID() != null) {
-            output += visit(ctx.ID());
+            op.append(visit(ctx.ID()));
         }
         else {
-            output += visit(ctx.DIGITS());
+            op.append(visit(ctx.DIGITS()));
         }
 
-        output += "; i++) {\n";
+        op.append("; i++) {\n");
 
         String content = visit(ctx.block());
-        output += content + "}\n";
+        op.append(content).append("}\n");
 
+        String output = op.ToString();
         return output;
     }
 
     /* 'repeatIf' '(' expression ')' block 'endRepeatIf' */
     @Override public String visitRep_if(SyntaxAnalysisParser.Rep_ifContext ctx) {
-        String output = "while(";
+        StringBuilder op = new StringBuilder();
+        op.append("while(");
 
         String expr = visit(ctx.expression());
-        output += expr + ") {\n";
+        op.append(expr).append(") {\n");
 
         String block = visit(ctx.block());
-        output += block + "}\n";
+        op.append(block).append("}\n");
 
+        String output = op.ToString();
         return output;
     }
 
     /* 'repeat' block 'until' '(' expression ')' */
     @Override public String visitRep_until(SyntaxAnalysisParser.Rep_untilContext ctx) {
-        String output = "do {";
+        StringBuilder op = new StringBuilder();
+        op.append("do {");
 
         String block = visit(ctx.block());
-        output += block + "} while (";
+        op.append(block).append("} while (");
 
         String expr = visit(ctx.expression());
-        output += expr + ")\n";
+        op.append(expr).append(")\n");
 
+        String output = op.ToString();
         return output;
     }
 
@@ -124,18 +144,20 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
 
     /* type ID '=' (expression | incr_Stmt | decr_Stmt) '.' */
     @Override public String visitAssign(SyntaxAnalysisParser.AssignContext ctx) {
+        StringBuilder op = new StringBuilder();
         String type = visit(ctx.type());
         String id = visit(ctx.ID());
 
-        String output = type + " " + id + " = ";
+        op.append(type).append(" ").append(id).append(" = ");
 
         if(ctx.incr_Stmt() != null)
-            output += visit(ctx.incr_Stmt()) + ";";
+            op.append(visit(ctx.incr_Stmt())).append(";");
         else if(ctx.decr_Stmt() != null)
-            output += visit(ctx.decr_Stmt()) + ";";
+            op.append(visit(ctx.decr_Stmt())).append(";");
         else
-            output += visit(ctx.expression()) + ";";
+            op.append(visit(ctx.expression())).append(";");
 
+        String output = op.ToString();
         return output;
     }
 
@@ -151,51 +173,59 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
 
     /* 'return' expression */
     @Override public String visitReturnStmt(SyntaxAnalysisParser.ReturnStmtContext ctx) {
-        String output = "return ";
+        StringBuilder op = new StringBuilder();
+        op.append("return ");
 
         String expr = visit(ctx.expression());
-        output += expr + ";";
+        op.append(expr).append(";");
 
+        String output = op.ToString();
         return output;
     }
 
     /* '++' ID */
     @Override public String visitPre_incr(SyntaxAnalysisParser.Pre_incrContex ctx) {
-        String output = "++ ";
+        StringBuilder op = new StringBuilder();
+        op.append("++ ");
 
         String id = visit(ctx.ID());
-        output += id + ";";
+        op.append(id).append(";");
 
+        String output = op.ToString();
         return output;
     }
 
     /* ID '++' */
     @Override public String visitPost_incr(SyntaxAnalysisParser_Post.incrContext ctx) {
-        String output = "";
+        StringBuilder op = new StringBuilder();
 
         String id = visit(ctx.ID());
-        output += id + "++;";
+        op.append(id).append("++;");
 
+        String output = op.ToString();
         return output;
     }
 
     /* '--' ID */
     @Override public String visitPre_decr(SyntaxAnalysisParser.Pre_decrContex ctx) {
-        String output = "-- ";
+        StringBuilder op = new StringBuilder();
+        op.append("-- ");
 
         String id = visit(ctx.ID());
-        output += id + ";";
+        op.append(id).append(";");
 
+        String output = op.ToString();
         return output;
     }
 
     /* ID '--' */
     @Override public String visitPost_decr(SyntaxAnalysisParser.Post_decrContext ctx) {
-        String output = "";
+        StringBuilder op = new StringBuilder();
 
         String id = visit(ctx.ID());
-        output += id + "--;";
+        op.append(id).append("--;");
 
+        String output = op.ToString();
         return output;
     }
 
@@ -211,105 +241,114 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
 
     /* expression bop=('*'|'/'|'%') expression */
     @Override public String visitMul_div_mod(SyntaxAnalysisParser.Mul_div_modContex ctx) {
-        String output = "";
+        StringBuilder op = new StringBuilder();
 
         String expr1 = visit(ctx.expression(0));
-        output += expr1 + " " + ctx.bop + " ";
+        op.append(expr1).append(" ").append(ctx.bop).append(" ");
 
         String expr2 = visit(ctx.expression(1));
-        output += expr2 + ";";
+        op.append(expr2).append(";");
 
+        String output = op.ToString();
         return output;
     }
 
     /* expression bop=('+'|'-') expression */
     @Override public String visitAdd_sub(SyntaxAnalysisParser.Add_subContext ctx) {
-        String output = "";
+        StringBuilder op = new StringBuilder();
 
         String expr1 = visit(ctx.expression(0));
-        output += expr1 + " " + ctx.bop + " ";
+        op.append(expr1).append(" ").append(ctx.bop).append(" ");
 
         String expr2 = visit(ctx.expression(1));
-        output += expr2 + ";";
+        op.append(expr2).append(";");
 
+        String output = op.ToString();
         return output;
     }
 
     /* expression bop=('<=' | '>=' | '<' | '>') expression */
     @Override public String visitLe_ge_lt_gt(SyntaxAnalysisParser.Le_ge_lt_gtContext ctx) {
-        String output = "";
+        StringBuilder op = new StringBuilder();
 
         String expr1 = visit(ctx.expression(0));
-        output += expr1 + " " + ctx.bop + " ";
+        op.append(expr1).append(" ").append(ctx.bop).append(" ");
 
         String expr2 = visit(ctx.expression(1));
-        output += expr2 + ";";
+        op.append(expr2).append(";");
 
+        String output = op.ToString();
         return output;
     }
 
     /* expression bop=('==' | '!=') expression */
     @Override public String visitEqual_notequal(SyntaxAnalysisParser.Equal_notequalContext ctx) {
-        String output = "";
+        StringBuilder op = new StringBuilder();
 
         String expr1 = visit(ctx.expression(0));
-        output += expr1 + " " + ctx.bop + " ";
+        op.append(expr1).append(" ").append(ctx.bop).append(" ");
 
         String expr2 = visit(ctx.expression(1));
-        output += expr2 + ";";
+        op.append(expr2).append(";");
 
+        String output = op.ToString();
         return output;
     }
 
     /* expression bop='&&' expression */
     @Override public String visitLogical_and(SyntaxAnalysisParser.Logical_andContext ctx) {
-        String output = "";
+        StringBuilder op = new StringBuilder();
 
         String expr1 = visit(ctx.expression(0));
-        output += expr1 + " " + ctx.bop + " ";
+        op.append(expr1).append(" ").append(ctx.bop).append(" ");
 
         String expr2 = visit(ctx.expression(1));
-        output += expr2 + ";";
+        op.append(expr2).append(";");
 
+        String output = op.ToString();
         return output;
     }
 
     /* expression bop='||' expression */
     @Override public String visitLogical_or(SyntaxAnalysisParser.Logical_orContext ctx) {
-        String output = "";
+        StringBuilder op = new StringBuilder();
 
         String expr1 = visit(ctx.expression(0));
-        output += expr1 + " " + ctx.bop + " ";
+        op.append(expr1).append(" ").append(ctx.bop).append(" ");
 
         String expr2 = visit(ctx.expression(1));
-        output += expr2 + ";";
+        op.append(expr2).append(";");
 
+        String output = op.ToString();
         return output;
     }
 
     /* <assoc=right> expression bop='?' expression ':' expression */
     @Override public String visitTertiary(SyntaxAnalysisParser.TertiaryContext ctx) {
-        String output = "";
+        StringBuilder op = new StringBuilder();
 
         String expr1 = visit(ctx.expression(0));
-        output += expr1 + " " + ctx.bop + " ";
+        op.append(expr1).append(" ").append(ctx.bop).append(" ");
 
         String expr2 = visit(ctx.expression(1));
-        output += expr2 + " : ";
+        op.append(expr2).append(" : ");
 
         String expr3 = visit(ctx.expression(2));
-        output += expr3 + ";";
+        op.append(expr3).append(";");
 
+        String output = op.ToString();
         return output;
     }
 
     /* '(' expression ')' */
     @Override public String visitParens(SyntaxAnalysisParser.ParensContext ctx) {
-        String output = "(";
+        StringBuilder op = new StringBuilder();
+        op.append("(");
 
         String expr = visit(ctx.expression());
-        output += expr + ")";
+        op.append(expr).append(")");
 
+        String output = op.ToString();
         return output;
     }
 
@@ -320,9 +359,12 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
 
     /* ID */
     @Override public String visitId(SyntaxAnalysisParser.IdContext ctx) {
-        String writtenID = ctx.ID().getText();
-        String newID = "_" + writtenID;
+        StringBuilder op = new StringBuilder();
 
+        String writtenID = ctx.ID().getText();
+        op.append("_").append(writtenID);
+
+        String newID = op.ToString();
         return newID;
     }
 
@@ -333,52 +375,54 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
 
     /* ID '(' param ')' '.' */
     @Override public String visitFuncCall(SyntaxAnalysisParser.FuncCallContext ctx) {
-        String output = "";
+        StringBuilder op = new StringBuilder();
 
         String id = visit(ctx.ID());
-        output += id + "(";
+        op.append(id).append("(");
 
         String params = visit(ctx.param());
-        output += params + ")";
+        op.append(params).append(")");
 
+        String output = op.ToString();
         return output;
     }
 
     /* (type ID (',' type ID)*)? */
     @Override public String visitFparameters(SyntaxAnalysisParser.FparametersContext ctx) {
-        String output = "";
+        StringBuilder op = new StringBuilder();
 
         int i = 0;
         for(SyntaxAnalysisParser.TypeContext type : ctx.type()) {
             if(i > 0)
-                output += ", ";
+                op.append(", ");
 
             String id = visit(ctx.ID(i));
 
-            output += type.getText() + " " + id;
+            op.append(type.getText()).append(" ").append(id);
 
             i++;
         }
 
+        String output = op.ToString();
         return output;
     }
 
     /* (expression (',' expression)*)? */
     @Override public String visitParameters(SyntaxAnalysisParser.ParametersContext ctx) {
-        String output = "";
+        StringBuilder op = new StringBuilder();
 
         int i = 0;
         for(SyntaxAnalysisParser.ExpressionContext expression : ctx.expression()) {
             if(i > 0)
-                output += ", ";
+                op.append(", ");
 
             String expr = visit(expression);
-
-            output += expr;
+            op.append(expr);
 
             i++;
         }
 
+        String output = op.ToString();
         return output;
     }
 
