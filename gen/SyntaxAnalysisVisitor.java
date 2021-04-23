@@ -72,6 +72,13 @@ public interface SyntaxAnalysisVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunc_stmt(SyntaxAnalysisParser.Func_stmtContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code var_decl}
+	 * labeled alternative in {@link SyntaxAnalysisParser#stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVar_decl(SyntaxAnalysisParser.Var_declContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code assign}
 	 * labeled alternative in {@link SyntaxAnalysisParser#stmt}.
 	 * @param ctx the parse tree
@@ -148,6 +155,13 @@ public interface SyntaxAnalysisVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitPrim(SyntaxAnalysisParser.PrimContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code not}
+	 * labeled alternative in {@link SyntaxAnalysisParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNot(SyntaxAnalysisParser.NotContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code le_ge_lt_gt}
 	 * labeled alternative in {@link SyntaxAnalysisParser#expression}.

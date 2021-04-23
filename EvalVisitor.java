@@ -162,8 +162,46 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     }
 
     /* type ID '=' (expression | incr_Stmt | decr_Stmt) '.' */
-    @Override public SyntaxAnalysisType visitAssign(SyntaxAnalysisParser.AssignContext ctx) {
+    @Override public SyntaxAnalysisType visitVar_decl(SyntaxAnalysisParser.Var_declContext ctx) {
         SyntaxAnalysisType assignType = ctx.type();
+        String id = ctx.ID().getText();
+        SyntaxAnalysisType type;
+
+        if(memory.containsKey(id)) {
+            int line = ctx.getStart().getLine();
+            int charPos = ctx.getStart().getCharPositionInLine();
+            errors.add("Syntax error at line " + line + "." + charPos + ": Variable with name " + id + " already exists.");
+        }
+
+        if(ctx.expression() != null)
+            type = visit(ctx.expression());
+        else if(ctx.incr_Stmt() != null)
+            type = visit(ctx.incr.Stmt());
+        else if(ctx.decr_Stmt() != null)
+            type = visit(ctx.decr_Stmt());
+        else {
+            int line = ctx.getStart().getLine();
+            int charPos = ctx.getStart().getCharPositionInLine();
+            String type = tokenVocabulary.getSymbolicName(ctx.type().getStart().getType());
+            if(type == "")
+                type = tokenVocabulary.getLiteralName(ctx.type().getStart().getType());
+
+            errors.add("Syntax error at line " + line + "." + charPos + ": Expected type NUM or BOOL but got type " + type ".");
+        }
+
+        if(!type instanceof assignType) {
+            int line = ctx.getStart().getLine();
+            int charPos = ctx.getStart().getCharPositionInLine();
+            errors.add("Syntax error at line " + line + "." + charPos + ": Expected type " + assignType.getTypeName() + " but got type " + type.getTypeName() ".");
+        }
+
+        memory.put(id, type);
+        return new SyntaxAnalysisNum();
+    }
+
+    /* ID '=' (expression | incr_Stmt | decr_Stmt) '.' */
+    @Override public SyntaxAnalysisType visitAssign(SyntaxAnalysisParser.AssignContext ctx) {
+        SyntaxAnalysisType assignType = visit(ctx.ID());
         String id = ctx.ID().getText();
         SyntaxAnalysisType type;
 
@@ -189,8 +227,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
             errors.add("Syntax error at line " + line + "." + charPos + ": Expected type " + assignType.getTypeName() + " but got type " + type.getTypeName() ".");
         }
 
-        memory.put(id, type);
-        return new SyntaxAnalysisVoid();
+        return assignType;
     }
 
     /* incr_Stmt */
@@ -219,7 +256,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
             errors.add("Syntax error at line " + line + "." + charPos + ": Expected type " + returnType.getTypeName() + " but got type " + type ".");
         }
 
-        return new SyntaxAnalysisVoid();
+        return visit(ctx.expression());
     }
 
     /* '++' ID */
@@ -233,7 +270,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
             errors.add("Syntax error at line " + line + "." + charPos + ": Expected type NUM but got type " + type ".");
         }
-        return new SyntaxAnalysisVoid();
+        return new SyntaxAnalysisNum();
     }
 
     /* ID '++' */
@@ -247,7 +284,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
             errors.add("Syntax error at line " + line + "." + charPos + ": Expected type NUM but got type " + type ".");
         }
-        return new SyntaxAnalysisVoid();
+        return new SyntaxAnalysisNum();
     }
 
     /* '--' ID */
@@ -261,7 +298,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
             errors.add("Syntax error at line " + line + "." + charPos + ": Expected type NUM but got type " + type ".");
         }
-        return new SyntaxAnalysisVoid();
+        return new SyntaxAnalysisNum();
     }
 
     /* ID '--' */
@@ -275,7 +312,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
             errors.add("Syntax error at line " + line + "." + charPos + ": Expected type NUM but got type " + type ".");
         }
-        return new SyntaxAnalysisVoid();
+        return new SyntaxAnalysisNum();
     }
 
     /* primary */
@@ -286,6 +323,21 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     /* func_Call */
     @Override public SyntaxAnalysisType visitFunc_expr(SyntaxAnalysisParser.Func_exprContext ctx) {
         return visit(ctx.func_Call());
+    }
+
+    /* '!' expression */
+    @Override public SyntaxAnalysisType visitNot(SyntaxAnalysisParser.NotContext ctx) {
+        if(!visit(ctx.expression()) instanceof SyntaxAnalysisBool) {
+            int line = ctx.getStart().getLine();
+            int charPos = ctx.getStart().getCharPositionInLine();
+            String type = tokenVocabulary.getSymbolicName(ctx.type().getStart().getType());
+            if(type == "")
+                type = tokenVocabulary.getLiteralName(ctx.type().getStart().getType());
+
+            errors.add("Syntax error at line " + line + "." + charPos + ": Expected type BOOL but got type " + type ".");
+        }
+
+        return new SyntaxAnalysisBool();
     }
 
     /* expression bop=('*'|'/'|'%') expression */
@@ -360,7 +412,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
             errors.add("Syntax error at line " + line + "." + charPos + ": Expected type NUM but got type " + type ".");
         }
 
-        return new SyntaxAnalysisNum();
+        return new SyntaxAnalysisBool();
     }
 
     /* expression bop=('==' | '!=') expression */

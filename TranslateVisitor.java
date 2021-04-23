@@ -123,11 +123,27 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
     }
 
     /* type ID '=' (expression | incr_Stmt | decr_Stmt) '.' */
-    @Override public String visitAssign(SyntaxAnalysisParser.AssignContext ctx) {
+    @Override public String visitVar_decl(SyntaxAnalysisParser.Var_declContext ctx) {
         String type = visit(ctx.type());
         String id = visit(ctx.ID());
 
         String output = type + " " + id + " = ";
+
+        if(ctx.incr_Stmt() != null)
+            output += visit(ctx.incr_Stmt()) + ";";
+        else if(ctx.decr_Stmt() != null)
+            output += visit(ctx.decr_Stmt()) + ";";
+        else
+            output += visit(ctx.expression()) + ";";
+
+        return output;
+    }
+
+    /* ID '=' (expression | incr_Stmt | decr_Stmt) '.' */
+    @Override public String visitAssign(SyntaxAnalysisParser.AssignContext ctx) {
+        String id = visit(ctx.ID());
+
+        String output = id + " = ";
 
         if(ctx.incr_Stmt() != null)
             output += visit(ctx.incr_Stmt()) + ";";
@@ -207,6 +223,16 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
     /* func_Call */
     @Override public String visitFunc_expr(SyntaxAnalysisParser.Func_exprContext ctx) {
         return visit(ctx.func_Call());
+    }
+
+    /* '!' expression */
+    @Override public SyntaxAnalysisType visitNot(SyntaxAnalysisParser.NotContext ctx) {
+        String output = "!";
+
+        String expr = visit(ctx.expression());
+        output += expr + ";";
+
+        return output;
     }
 
     /* expression bop=('*'|'/'|'%') expression */

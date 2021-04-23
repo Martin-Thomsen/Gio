@@ -15,9 +15,10 @@ block:              stmt*                                                       
 stmt:               'if' '(' expression ')' 'do' block ('else if' '(' expression ')' 'do' block)* ('else do' block)? 'endIf'    #if
 				    | 'repeat' '(' (DIGITS | ID) ')' block 'endRepeat'                                                          #rep
 				    | 'repeatIf' '(' expression ')' block 'endRepeatIf'                                                         #rep_if
-				    | 'repeat' block 'until' '(' expression ')'                                              #rep_until
+				    | 'repeat' block 'until' '(' expression ')'                                                                 #rep_until
                     | func_Call '.'                                                                                             #func_stmt
-				    | type ID '=' (expression | incr_Stmt | decr_Stmt) '.'                                                      #assign
+				    | type ID '=' (expression | incr_Stmt | decr_Stmt) '.'                                                      #var_decl
+				    | ID '=' (expression | incr_Stmt | decr_Stmt) '.'                                                           #assign
 				    | incr_Stmt '.'                                                                                             #incr
 				    | decr_Stmt '.'                                                                                             #decr
 				    | return_Stmt '.'                                                                                           #ret
@@ -36,6 +37,7 @@ return_Stmt:        'return' expression                                         
 
 expression:         primary                                                         #prim
                     | func_Call                                                     #func_expr
+                    | '!' expression                                                #not
                     | expression bop=('*'|'/'|'%') expression                       #mul_div_mod
                     | expression bop=('+'|'-') expression                           #add_sub
                     | expression bop=('<=' | '>=' | '<' | '>') expression           #le_ge_lt_gt
