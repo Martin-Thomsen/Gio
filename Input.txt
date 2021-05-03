@@ -1,0 +1,3 @@
+function num Abc(num a, num b)
+bool c = a + b.
+endFunction
