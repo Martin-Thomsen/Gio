@@ -1,9 +1,13 @@
+package RoboBasic;
 import java.util.HashMap;
 import java.util.Map;
-import gen.*;
 
 public class FuncCollect extends SyntaxAnalysisBaseVisitor<Map<String, SyntaxAnalysisFuncType>> {
     Map<String, SyntaxAnalysisFuncType> fEnv = new HashMap<String, SyntaxAnalysisFuncType>();
+
+    public Map<String, SyntaxAnalysisFuncType> getEnvironment() {
+        return fEnv;
+    }
 
     @Override public Map<String, SyntaxAnalysisFuncType> visitFunction(SyntaxAnalysisParser.FunctionContext ctx) {
         String id = ctx.ID().getText();
