@@ -6,7 +6,6 @@ import org.antlr.v4.runtime.Vocabulary;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
-    Map<String, SyntaxAnalysisType> memory = new HashMap<>();
     Map<String, SyntaxAnalysisType> varEnv;
     Map<String, SyntaxAnalysisFuncType> fEnv;
     Vocabulary tokenVocabulary = SyntaxAnalysisLexer.VOCABULARY;
@@ -20,21 +19,9 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
         return errors;
     }
 
-    @Override public SyntaxAnalysisType visitProg(SyntaxAnalysisParser.ProgContext ctx) {
-        System.out.println("TEST");
-
-        for(SyntaxAnalysisParser.FuncContext function : ctx.func()) {
-            visit(function);
-        }
-
-        return visitChildren(ctx);
-    }
-
     /* 'function' ftype ID '(' fparam ')' block 'endFunction' */
     @Override public SyntaxAnalysisType visitFunction(SyntaxAnalysisParser.FunctionContext ctx) {
         varEnv = new HashMap<>();
-        System.out.println("TEST2");
-        addError(ctx, "1");
         visit(ctx.fparam());
         visit(ctx.block());
 
@@ -134,7 +121,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
         String id = ctx.ID().getText();
         SyntaxAnalysisType dType = new SyntaxAnalysisVoid();
 
-        if(memory.containsKey(id)) {
+        if(varEnv.containsKey(id)) {
             addError(ctx, "Variable with name " + id + " already exists");
         }
 
@@ -152,7 +139,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
             addError(ctx, dType.getTypeName(), assignType);
         }
 
-        memory.put(id, dType);
+        varEnv.put(id, dType);
         return new SyntaxAnalysisNum();
     }
 
@@ -367,8 +354,8 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     /* ID */
     @Override public SyntaxAnalysisType visitId(SyntaxAnalysisParser.IdContext ctx) {
         String id = ctx.ID().getText();
-        if(memory.containsKey(id)) {
-            return memory.get(id);
+        if(varEnv.containsKey(id)) {
+            return varEnv.get(id);
         }
 
         addError(ctx, "Variable " + id + " not found. Please assign a variable before attempting to use it");

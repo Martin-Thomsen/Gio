@@ -109,6 +109,17 @@ public class SyntaxAnalysisParser extends Parser {
 	}
 
 	public static class ProgContext extends ParserRuleContext {
+		public ProgContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_prog; }
+	 
+		public ProgContext() { }
+		public void copyFrom(ProgContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class ProgramContext extends ProgContext {
 		public TerminalNode EOF() { return getToken(SyntaxAnalysisParser.EOF, 0); }
 		public List<FuncContext> func() {
 			return getRuleContexts(FuncContext.class);
@@ -122,13 +133,10 @@ public class SyntaxAnalysisParser extends Parser {
 		public EventHandContext eventHand(int i) {
 			return getRuleContext(EventHandContext.class,i);
 		}
-		public ProgContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_prog; }
+		public ProgramContext(ProgContext ctx) { copyFrom(ctx); }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SyntaxAnalysisVisitor ) return ((SyntaxAnalysisVisitor<? extends T>)visitor).visitProg(this);
+			if ( visitor instanceof SyntaxAnalysisVisitor ) return ((SyntaxAnalysisVisitor<? extends T>)visitor).visitProgram(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -138,6 +146,7 @@ public class SyntaxAnalysisParser extends Parser {
 		enterRule(_localctx, 0, RULE_prog);
 		int _la;
 		try {
+			_localctx = new ProgramContext(_localctx);
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(34);

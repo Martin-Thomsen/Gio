@@ -18,6 +18,7 @@ public class Implementation {
         FuncCollect funcCollect = new FuncCollect();
         funcCollect.visit(parser.prog());
 
+        parser.reset();
         EvalVisitor evalVisitor = new EvalVisitor(funcCollect.getEnvironment());
         evalVisitor.visit(parser.prog());
 
@@ -28,12 +29,11 @@ public class Implementation {
 
         FileWriter writer = new FileWriter(file);
         writer.write("123");
-        System.out.println(errors);
 
         for(String error : errors) {
             System.out.println(error);
             writer.append(error);
-            writer.close();
         }
+        writer.close();
     }
 }
