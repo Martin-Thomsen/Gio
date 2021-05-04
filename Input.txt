@@ -1,5 +1,6 @@
 function num Abc(num a, num b)
 num c = a + b.
+c = 2.
 endFunction
 
 function void run()

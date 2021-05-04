@@ -145,7 +145,9 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
     /* ID '=' (expression | incr_Stmt | decr_Stmt) '.' */
     @Override public SyntaxAnalysisType visitAssign(SyntaxAnalysisParser.AssignContext ctx) {
-        String assignType = visit(ctx.ID()).getTypeName();
+        //String assignType = visit(ctx.ID()).getTypeName();
+        String assignType = "NUM";
+        System.out.println(visit(ctx.ID()));
         SyntaxAnalysisType aType = new SyntaxAnalysisVoid();
 
         if(ctx.expression() != null)
@@ -155,7 +157,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
         else if(ctx.decr_Stmt() != null)
             aType = visit(ctx.decr_Stmt());
         else {
-            addError(ctx, "Expected and expression to be assigned");
+            addError(ctx, "Expected an expression to be assigned");
         }
 
         if(!(aType.getTypeName().equals(assignType))) {

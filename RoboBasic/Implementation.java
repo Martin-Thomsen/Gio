@@ -22,6 +22,12 @@ public class Implementation {
         EvalVisitor evalVisitor = new EvalVisitor(funcCollect.getEnvironment());
         evalVisitor.visit(parser.prog());
 
+        parser.reset();
+        TranslateVisitor translateVisitor = new TranslateVisitor();
+        String output = translateVisitor.visit(parser.prog());
+
+        //System.out.println(output);
+
         List<String> errors = evalVisitor.getErrors();
 
         File file = new File("C:\\Users\\m-s-t\\Documents\\GitHub\\Gio\\Errors.txt");
