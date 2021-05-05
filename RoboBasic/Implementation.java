@@ -26,7 +26,7 @@ public class Implementation {
         TranslateVisitor translateVisitor = new TranslateVisitor();
         String output = translateVisitor.visit(parser.prog());
 
-        //System.out.println(output);
+        System.out.println(output);
 
         List<String> errors = evalVisitor.getErrors();
 

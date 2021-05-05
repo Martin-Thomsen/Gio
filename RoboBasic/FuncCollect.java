@@ -29,6 +29,10 @@ public class FuncCollect extends SyntaxAnalysisBaseVisitor<Map<String, SyntaxAna
     }
 
     @Override public Map<String, SyntaxAnalysisFuncType> visitFparameters(SyntaxAnalysisParser.FparametersContext ctx) {
+        if(ctx.getParent() instanceof SyntaxAnalysisParser.WhenContext) {
+            return fEnv;
+        }
+
         String id = ((SyntaxAnalysisParser.FunctionContext)ctx.getParent()).ID().getText();
         SyntaxAnalysisFuncType func = fEnv.get(id);
 

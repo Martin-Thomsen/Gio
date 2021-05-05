@@ -1,8 +1,25 @@
 function num Abc(num a, num b)
-num c = a + b.
-c = 2.
+    num c = a + b.
+    c = 2.
+    return c.
 endFunction
 
 function void run()
-num c = 1 + 2.
+    num c = 1 + 2.
 endFunction
+
+when Def(bool a, num b)
+    num c = Abc(b, 2).
+    if(c == 2) do
+        repeat(c)
+            ++b.
+        endRepeat
+        repeatIf(a)
+            --b.
+        endRepeatIf
+        repeat
+            bool d = true || a.
+        until(!a)
+    endIf
+    num e = a ? 2 : 1.
+endWhen

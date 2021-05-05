@@ -39,8 +39,18 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
     /* stmt* */
     @Override public SyntaxAnalysisType visitBlk(SyntaxAnalysisParser.BlkContext ctx) {
+        boolean funcReturnCheck = false;
         for(SyntaxAnalysisParser.StmtContext stmt : ctx.stmt()) {
             visit(stmt);
+            if(stmt.getStart().getText().equals("return")) {
+                funcReturnCheck = true;
+            }
+        }
+
+        if(ctx.getParent() instanceof SyntaxAnalysisParser.FunctionContext
+                && !(visit(((SyntaxAnalysisParser.FunctionContext)ctx.getParent()).ftype()) instanceof SyntaxAnalysisVoid)
+                && !funcReturnCheck) {
+            addError(ctx.getParent(), "Return value expected");
         }
 
         return new SyntaxAnalysisVoid();
@@ -66,13 +76,9 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     /* 'repeat' '(' (DIGITS | ID) ')' block 'endRepeat' */
     @Override public SyntaxAnalysisType visitRep(SyntaxAnalysisParser.RepContext ctx) {
         if(ctx.ID() != null) {
-            if (!(visit(ctx.ID()) instanceof SyntaxAnalysisNum)) {
-                addError(ctx, ctx.ID(), "NUM");
-            }
-        }
-        else {
-            if(!(visit(ctx.DIGITS()) instanceof SyntaxAnalysisNum)) {
-                addError(ctx, ctx.DIGITS(), "NUM");
+            SyntaxAnalysisType type = getIDFromToken(ctx, ctx.id);
+            if (!(type instanceof SyntaxAnalysisNum)) {
+                addError(ctx, "NUM", type.getTypeName());
             }
         }
 
@@ -118,7 +124,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     /* type ID '=' (expression | incr_Stmt | decr_Stmt) '.' */
     @Override public SyntaxAnalysisType visitVar_decl(SyntaxAnalysisParser.Var_declContext ctx) {
         String assignType = visit(ctx.type()).getTypeName();
-        String id = ctx.ID().getText();
+        String id = ctx.id.getText();
         SyntaxAnalysisType dType = new SyntaxAnalysisVoid();
 
         if(varEnv.containsKey(id)) {
@@ -145,9 +151,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
     /* ID '=' (expression | incr_Stmt | decr_Stmt) '.' */
     @Override public SyntaxAnalysisType visitAssign(SyntaxAnalysisParser.AssignContext ctx) {
-        //String assignType = visit(ctx.ID()).getTypeName();
-        String assignType = "NUM";
-        System.out.println(visit(ctx.ID()));
+        String assignType = getIDFromToken(ctx, ctx.id).getTypeName();
         SyntaxAnalysisType aType = new SyntaxAnalysisVoid();
 
         if(ctx.expression() != null)
@@ -179,7 +183,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
     /* 'return' expression */
     @Override public SyntaxAnalysisType visitReturnStmt(SyntaxAnalysisParser.ReturnStmtContext ctx) {
-        String funcID = ((SyntaxAnalysisParser.FunctionContext)ctx.getParent()).ID().getText();
+        String funcID = ((SyntaxAnalysisParser.FunctionContext)ctx.getParent().getParent().getParent()).ID().getText();
         SyntaxAnalysisFuncType func = fEnv.get(funcID);
         String returnType = func.getReturnType().getTypeName();
 
@@ -192,32 +196,36 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
     /* '++' ID */
     @Override public SyntaxAnalysisType visitPre_incr(SyntaxAnalysisParser.Pre_incrContext ctx) {
-        if(!(visit(ctx.ID()) instanceof SyntaxAnalysisNum)) {
-            addError(ctx, ctx.ID(), "NUM");
+        SyntaxAnalysisType type = getIDFromToken(ctx, ctx.id);
+        if (!(type instanceof SyntaxAnalysisNum)) {
+            addError(ctx, "NUM", type.getTypeName());
         }
         return new SyntaxAnalysisNum();
     }
 
     /* ID '++' */
     @Override public SyntaxAnalysisType visitPost_incr(SyntaxAnalysisParser.Post_incrContext ctx) {
-        if(!(visit(ctx.ID()) instanceof SyntaxAnalysisNum)) {
-            addError(ctx, ctx.ID(), "NUM");
+        SyntaxAnalysisType type = getIDFromToken(ctx, ctx.id);
+        if (!(type instanceof SyntaxAnalysisNum)) {
+            addError(ctx, "NUM", type.getTypeName());
         }
         return new SyntaxAnalysisNum();
     }
 
     /* '--' ID */
     @Override public SyntaxAnalysisType visitPre_decr(SyntaxAnalysisParser.Pre_decrContext ctx) {
-        if(!(visit(ctx.ID()) instanceof SyntaxAnalysisNum)) {
-            addError(ctx, ctx.ID(), "NUM");
+        SyntaxAnalysisType type = getIDFromToken(ctx, ctx.id);
+        if (!(type instanceof SyntaxAnalysisNum)) {
+            addError(ctx, "NUM", type.getTypeName());
         }
         return new SyntaxAnalysisNum();
     }
 
     /* ID '--' */
     @Override public SyntaxAnalysisType visitPost_decr(SyntaxAnalysisParser.Post_decrContext ctx) {
-        if(!(visit(ctx.ID()) instanceof SyntaxAnalysisNum)) {
-            addError(ctx, ctx.ID(), "NUM");
+        SyntaxAnalysisType type = getIDFromToken(ctx, ctx.id);
+        if (!(type instanceof SyntaxAnalysisNum)) {
+            addError(ctx, "NUM", type.getTypeName());
         }
         return new SyntaxAnalysisNum();
     }
@@ -325,18 +333,27 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     /* <assoc=right> expression bop='?' expression ':' expression */
     @Override public SyntaxAnalysisType visitTertiary(SyntaxAnalysisParser.TertiaryContext ctx) {
         if(!(visit(ctx.expression(0)) instanceof SyntaxAnalysisBool)) {
-            addError(ctx, ctx.expression(0), "NUM, BOOL or VOID");
+            addError(ctx, ctx.expression(0), "BOOL");
         }
 
-        if(visit(ctx.expression(1)) == null) {
-            addError(ctx, ctx.expression(1), "NUM, BOOL or VOID");
+        SyntaxAnalysisType type = new SyntaxAnalysisVoid();
+
+        if(ctx.getParent() instanceof SyntaxAnalysisParser.Var_declContext)
+            type = visit(((SyntaxAnalysisParser.Var_declContext)ctx.getParent()).type());
+        else if (ctx.getParent() instanceof SyntaxAnalysisParser.AssignContext)
+            type = getIDFromToken(ctx, ((SyntaxAnalysisParser.AssignContext)ctx.getParent()).id);
+        else
+            addError(ctx, "Ternary expression can not be placed anywhere but in a declaration or assignment");
+
+        if(!(visit(ctx.expression(1)).getTypeName().equals(type.getTypeName()))) {
+            addError(ctx, ctx.expression(1), type.getTypeName());
         }
 
-        if(visit(ctx.expression(2)) == null) {
-            addError(ctx, ctx.expression(2), "NUM, BOOL or VOID");
+        if(!(visit(ctx.expression(2)).getTypeName().equals(type.getTypeName()))) {
+            addError(ctx, ctx.expression(2), type.getTypeName());
         }
 
-        return new SyntaxAnalysisVoid();
+        return type;
     }
 
     /* '(' expression ')' */
@@ -373,7 +390,11 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     /* ID '(' param ')' '.' */
     @Override public SyntaxAnalysisType visitFuncCall(SyntaxAnalysisParser.FuncCallContext ctx) {
         visit(ctx.param());
-        return new SyntaxAnalysisVoid();
+
+        if(fEnv.containsKey(ctx.id.getText()))
+            return fEnv.get(ctx.id.getText()).getReturnType();
+        else
+            return new SyntaxAnalysisVoid();
     }
 
     /* (type ID (',' type ID)*)? */
@@ -390,7 +411,13 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
     /* (expression (',' expression)*)? */
     @Override public SyntaxAnalysisType visitParameters(SyntaxAnalysisParser.ParametersContext ctx) {
-        String funcID = ((SyntaxAnalysisParser.FunctionContext)ctx.getParent()).ID().getText();
+        String funcID;
+        if(ctx.getParent() instanceof SyntaxAnalysisParser.FuncCallContext) {
+            funcID = ((SyntaxAnalysisParser.FuncCallContext)ctx.getParent()).ID().getText();
+        }
+        else {
+            funcID = ((SyntaxAnalysisParser.FunctionContext)ctx.getParent()).ID().getText();
+        }
         SyntaxAnalysisFuncType func = fEnv.get(funcID);
         Collection<SyntaxAnalysisType> funcParams = func.getParameters().values();
         Iterator<SyntaxAnalysisType> itr = funcParams.iterator();
@@ -430,6 +457,17 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
         return new SyntaxAnalysisBool();
     }
 
+    SyntaxAnalysisType getIDFromToken(ParserRuleContext ctx, Token idToken) {
+        String id = idToken.getText();
+        if(varEnv.containsKey(id)) {
+            return varEnv.get(id);
+        }
+
+        addError(ctx, "Variable " + id + " not found. Please assign a variable before attempting to use it");
+
+        return new SyntaxAnalysisVoid();
+    }
+
     public void addError(ParserRuleContext ctx, String message) {
         int line = ctx.getStart().getLine();
         int charPos = ctx.getStart().getCharPositionInLine();
@@ -450,16 +488,10 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
         String type = tokenVocabulary.getSymbolicName(tokenCtx.getStart().getType());
         if(type.equals(""))
             type = tokenVocabulary.getLiteralName(tokenCtx.getStart().getType());
-
-        errors.add("Syntax error at line " + line + "." + charPos + ": Expected type " + expected + " but got type " + type + ".");
-    }
-
-    void addError(ParserRuleContext ctx, TerminalNode node, String expected) {
-        int line = ctx.getStart().getLine();
-        int charPos = ctx.getStart().getCharPositionInLine();
-        String type = tokenVocabulary.getSymbolicName(node.getSymbol().getType());
-        if(type.equals(""))
-            type = tokenVocabulary.getLiteralName(node.getSymbol().getType());
+        else if(type.equals("ID")) {
+            errors.add("Syntax error at line " + line + "." + charPos + ": Expected type " + expected + " but got type " + getIDFromToken(ctx, tokenCtx.getStart()).getTypeName() + ".");
+            return;
+        }
 
         errors.add("Syntax error at line " + line + "." + charPos + ": Expected type " + expected + " but got type " + type + ".");
     }

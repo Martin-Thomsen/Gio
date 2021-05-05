@@ -3,33 +3,33 @@ grammar SyntaxAnalysis;
 prog:               (func | eventHand)* EOF                                     #program
                     ;
 
-func:               'function' ftype ID '(' fparam ')' block 'endFunction'      #function
+func:               'function' ftype id=ID '(' fparam ')' block 'endFunction'   #function
                     ;
 
-eventHand:          'when' ID '(' fparam ')' block 'endWhen'                    #when
+eventHand:          'when' id=ID '(' fparam ')' block 'endWhen'                 #when
                     ;
 
 block:              stmt*                                                       #blk
                     ;
 
 stmt:               'if' '(' expression ')' 'do' block ('else if' '(' expression ')' 'do' block)* ('else do' block)? 'endIf'    #if
-				    | 'repeat' '(' (DIGITS | ID) ')' block 'endRepeat'                                                          #rep
+				    | 'repeat' '(' (digits=DIGITS | id=ID) ')' block 'endRepeat'                                                #rep
 				    | 'repeatIf' '(' expression ')' block 'endRepeatIf'                                                         #rep_if
 				    | 'repeat' block 'until' '(' expression ')'                                                                 #rep_until
                     | func_Call '.'                                                                                             #func_stmt
-				    | type ID '=' (expression | incr_Stmt | decr_Stmt) '.'                                                      #var_decl
-				    | ID '=' (expression | incr_Stmt | decr_Stmt) '.'                                                           #assign
+				    | type id=ID '=' (expression | incr_Stmt | decr_Stmt) '.'                                                   #var_decl
+				    | id=ID '=' (expression | incr_Stmt | decr_Stmt) '.'                                                        #assign
 				    | incr_Stmt '.'                                                                                             #incr
 				    | decr_Stmt '.'                                                                                             #decr
 				    | return_Stmt '.'                                                                                           #ret
 				    ;
 
-incr_Stmt:          '++' ID         #pre_incr
-                    | ID '++'       #post_incr
+incr_Stmt:          '++' id=ID         #pre_incr
+                    | id=ID '++'       #post_incr
                     ;
 
-decr_Stmt:          '--' ID         #pre_decr
-                    | ID '--'       #post_decr
+decr_Stmt:          '--' id=ID         #pre_decr
+                    | id=ID '--'       #post_decr
                     ;
 
 return_Stmt:        'return' expression                                             #returnStmt
@@ -48,15 +48,15 @@ expression:         primary                                                     
                     ;
 
 primary:            '(' expression ')'      #parens
-                    | DIGITS                #digits
-                    | ID                    #id
-                    | BOOL                  #bool
+                    | digits=DIGITS         #digits
+                    | id=ID                 #id
+                    | bool=BOOL             #bool
                     ;
 
-func_Call:          ID '(' param ')' '.'                                            #funcCall
+func_Call:          id=ID '(' param ')'                                             #funcCall
                     ;
 
-fparam:             (type ID (',' type ID)*)?                                       #fparameters
+fparam:             (type id=ID (',' type id=ID)*)?                                 #fparameters
                     ;
 
 param:              (expression (',' expression)*)?                                 #parameters
@@ -72,14 +72,8 @@ type:               'num'                                                       
 
 //LEXICAL PART
 BOOL:               'true' | 'false';
-ID:                 LETTER (LETTERORDIGIT | '_')*;
-DIGITS:             DIGIT DIGITS
-		            | DIGIT;
-DIGIT:              '0'..'9';
-LETTER:             'a'..'z'
-                    | 'A'..'Z';
-LETTERORDIGIT:      LETTER
-                    | DIGIT;
+ID:                 [a-zA-Z_][a-zA-Z_0-9]*;
+DIGITS:             [0-9]*;
 
 MUL:                '*';
 DIV:                '/';
