@@ -26,20 +26,26 @@ public class Implementation {
         TranslateVisitor translateVisitor = new TranslateVisitor();
         String output = translateVisitor.visit(parser.prog());
 
-        System.out.println(output);
-
         List<String> errors = evalVisitor.getErrors();
 
-        File file = new File("C:\\Users\\m-s-t\\Documents\\GitHub\\Gio\\Errors.txt");
-        file.createNewFile();
+        File errorFile = new File("C:\\Users\\m-s-t\\Documents\\GitHub\\Gio\\Errors.txt");
+        File outputFile = new File("C:\\Users\\m-s-t\\Documents\\GitHub\\Gio\\Output.txt");
+        errorFile.createNewFile();
+        outputFile.createNewFile();
 
-        FileWriter writer = new FileWriter(file);
-        writer.write("123");
+        FileWriter errorWriter = new FileWriter(errorFile);
+        FileWriter outputWriter = new FileWriter(outputFile);
+
+        StringBuilder errorString = new StringBuilder();
 
         for(String error : errors) {
-            System.out.println(error);
-            writer.append(error);
+            errorString.append(error).append("\n");
         }
-        writer.close();
+
+        errorWriter.write(errorString.toString());
+        errorWriter.close();
+
+        outputWriter.write(output);
+        outputWriter.close();
     }
 }

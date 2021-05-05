@@ -1,1 +1,1 @@
-123
+Syntax error at line 24.12: Expected type NUM but got type BOOL.
