@@ -8,11 +8,13 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     Map<String, SyntaxAnalysisType> varEnv;
     Map<String, SyntaxAnalysisFuncType> fEnv;
+    Map<String, SyntaxAnalysisWhenType> wEnv;
     Vocabulary tokenVocabulary = SyntaxAnalysisLexer.VOCABULARY;
     List<String> errors = new ArrayList<>();
 
-    public EvalVisitor(Map<String, SyntaxAnalysisFuncType> fEnv) {
+    public EvalVisitor(Map<String, SyntaxAnalysisFuncType> fEnv, Map<String, SyntaxAnalysisWhenType> wEnv) {
         this.fEnv = fEnv;
+        this.wEnv = wEnv;
     }
 
     public List<String> getErrors() {
@@ -31,7 +33,22 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     /* 'when' ID '(' param ')' block 'endWhen' */
     @Override public SyntaxAnalysisType visitWhen(SyntaxAnalysisParser.WhenContext ctx) {
         varEnv = new HashMap<>();
-        visit(ctx.fparam());
+        SyntaxAnalysisWhenType eventHandler;
+
+        if(wEnv.containsKey(ctx.id.getText())) {
+            eventHandler = wEnv.get(ctx.id.getText());
+        }
+        else {
+            addError(ctx, "Event handler with name " + ctx.id.getText() + " not found");
+            return new SyntaxAnalysisVoid();
+        }
+
+        Map<String, SyntaxAnalysisType> eventVars = eventHandler.getParameters();
+
+        for(Map.Entry<String, SyntaxAnalysisType> eventVar : eventVars.entrySet()) {
+            varEnv.put(eventVar.getKey(), eventVar.getValue());
+        }
+
         visit(ctx.block());
 
         return new SyntaxAnalysisVoid();
@@ -394,7 +411,9 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
         if(fEnv.containsKey(ctx.id.getText()))
             return fEnv.get(ctx.id.getText()).getReturnType();
         else
-            return new SyntaxAnalysisVoid();
+            addError(ctx, "Function with name " + ctx.id.getText() + " not found.");
+
+        return new SyntaxAnalysisVoid();
     }
 
     /* (type ID (',' type ID)*)? */

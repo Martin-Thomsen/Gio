@@ -15,12 +15,15 @@ public class Implementation {
         FuncCollect funcCollect = new FuncCollect();
         funcCollect.visit(parser.prog());
 
+        EventCollect eventCollect = new EventCollect();
+        eventCollect.CollectEvents();
+
         parser.reset();
-        EvalVisitor evalVisitor = new EvalVisitor(funcCollect.getEnvironment());
+        EvalVisitor evalVisitor = new EvalVisitor(funcCollect.getEnvironment(), eventCollect.getEnvironment());
         evalVisitor.visit(parser.prog());
 
         parser.reset();
-        TranslateVisitor translateVisitor = new TranslateVisitor();
+        TranslateVisitor translateVisitor = new TranslateVisitor(eventCollect.getEnvironment());
         String output = translateVisitor.visit(parser.prog());
 
         List<String> errors = evalVisitor.getErrors();

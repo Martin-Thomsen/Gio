@@ -2,9 +2,16 @@ package RoboBasic;
 import java.lang.StringBuilder;
 import RoboBasicGen.*;
 import org.antlr.v4.runtime.*;
+import java.util.Map;
+import java.util.HashMap;
 
 public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
     Integer indentationCount = 0;
+    Map<String, SyntaxAnalysisWhenType> wEnv;
+
+    public TranslateVisitor(Map<String, SyntaxAnalysisWhenType> wEnv) {
+        this.wEnv = wEnv;
+    }
 
     @Override public String visitProgram(SyntaxAnalysisParser.ProgramContext ctx) {
         StringBuilder op = new StringBuilder();
@@ -40,14 +47,23 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
 
     /* 'when' ID '(' param ')' block 'endWhen' */
     @Override public String visitWhen(SyntaxAnalysisParser.WhenContext ctx) {
-        String id = getIdFromToken(ctx.id);
-        String params = visit(ctx.fparam());
-        String content = visit(ctx.block());
+        String id = ctx.id.getText();
 
-        StringBuilder op = new StringBuilder();
-        op.append("\t").append("public void ").append(id).append("(").append(params).append(") {\n").append(content).append("\t").append("}\n");
+        if(wEnv.containsKey(id)) {
+            String content = visit(ctx.block());
+            Map<String, String> params = wEnv.get(ctx.id.getText()).getTranslatedParameters();
 
-        return op.toString();
+            for(Map.Entry<String, String> param : params.entrySet()) {
+                content = content.replace("_" + param.getKey(), param.getValue());
+            }
+
+            StringBuilder op = new StringBuilder();
+            op.append("\t").append("public void ").append(id).append("(").append(") {\n").append(content).append("\t").append("}\n");
+
+            return op.toString();
+        }
+
+        return "";
     }
 
     /* stmt* */
@@ -437,7 +453,7 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
 
             String id = ctx.ID(i).getText();
 
-            op.append(type.getText()).append(" _").append(id);
+            op.append(visit(type)).append(" _").append(id);
 
             i++;
         }

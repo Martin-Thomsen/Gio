@@ -30,7 +30,7 @@ public class SyntaxAnalysisFuncType extends SyntaxAnalysisType {
         return _params;
     }
 
-    public String getTypeName() {
+    @Override public String getTypeName() {
         return "FUNC";
     }
 }
