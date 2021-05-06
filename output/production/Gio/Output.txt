@@ -1,15 +1,15 @@
 public class RoboBasic {
-	publicvoid _main() {
+	public void _main() {
 		int _a = 2;
 		int _b = 5;
 		int _c = _add(_a, _b);
 	}
 
-	publicint _add(int _x, int _y) {
+	public int _add(int _x, int _y) {
 		return _x + _y;
 	}
 
-	publicvoid run() {
+	public void run() {
 	}
 
 	public void onHitByBullet() {

@@ -17,4 +17,8 @@ public class RoboBasic {
 		int _b = HitByBulletEvent.getBullet().getHeading();
 	}
 
+	public void onHitWall() {
+		int _a = HitWallEvent.getBearing();
+	}
+
 }

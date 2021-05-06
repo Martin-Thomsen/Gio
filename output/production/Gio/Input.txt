@@ -15,3 +15,7 @@ endWhen
 
 function void run()
 endFunction
+
+when onHitWall()
+    num a = bearing.
+endWhen
