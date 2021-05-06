@@ -19,7 +19,7 @@ public class Implementation {
         eventCollect.CollectEvents();
 
         parser.reset();
-        EvalVisitor evalVisitor = new EvalVisitor(funcCollect.getEnvironment(), eventCollect.getEnvironment());
+        EvalVisitor evalVisitor = new EvalVisitor(funcCollect.getEnvironment(), eventCollect.getEnvironment(), funcCollect.getErrors());
         evalVisitor.visit(parser.prog());
 
         parser.reset();

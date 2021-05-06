@@ -7,7 +7,7 @@ public class SyntaxAnalysisFuncType extends SyntaxAnalysisType {
     private SyntaxAnalysisType _returnType;
 
     public SyntaxAnalysisFuncType(){
-        _params = new HashMap<String, SyntaxAnalysisType>();
+        _params = new HashMap<>();
     }
 
     public void setReturnType(SyntaxAnalysisType returnType) {

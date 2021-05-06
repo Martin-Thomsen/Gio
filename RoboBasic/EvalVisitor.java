@@ -12,9 +12,10 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     Vocabulary tokenVocabulary = SyntaxAnalysisLexer.VOCABULARY;
     List<String> errors = new ArrayList<>();
 
-    public EvalVisitor(Map<String, SyntaxAnalysisFuncType> fEnv, Map<String, SyntaxAnalysisWhenType> wEnv) {
+    public EvalVisitor(Map<String, SyntaxAnalysisFuncType> fEnv, Map<String, SyntaxAnalysisWhenType> wEnv, List<String> previousErrors) {
         this.fEnv = fEnv;
         this.wEnv = wEnv;
+        errors = previousErrors;
     }
 
     public List<String> getErrors() {

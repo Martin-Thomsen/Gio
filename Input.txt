@@ -12,3 +12,6 @@ when onHitByBullet()
     num a = bearing.
     num b = bulletHeading.
 endWhen
+
+function void run()
+endFunction

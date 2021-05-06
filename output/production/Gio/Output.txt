@@ -1,16 +1,20 @@
 public class RoboBasic {
-	void _main() {
+	publicvoid _main() {
 		int _a = 2;
 		int _b = 5;
 		int _c = _add(_a, _b);
 	}
 
-	int _add(int _x, int _y) {
+	publicint _add(int _x, int _y) {
 		return _x + _y;
+	}
+
+	publicvoid run() {
 	}
 
 	public void onHitByBullet() {
 		int _a = HitByBulletEvent.getBearing();
+		int _b = HitByBulletEvent.getBullet().getHeading();
 	}
 
 }

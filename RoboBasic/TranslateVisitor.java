@@ -40,7 +40,7 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
         String content = visit(ctx.block());
 
         StringBuilder op = new StringBuilder();
-        op.append("\t").append(returnType).append(" ").append(id).append("(").append(params).append(") {\n").append(content).append("\t").append("}\n");
+        op.append("\t").append("public ").append(returnType).append(" ").append(id).append("(").append(params).append(") {\n").append(content).append("\t").append("}\n");
 
         return op.toString();
     }
