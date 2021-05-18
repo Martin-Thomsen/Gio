@@ -1,6 +1,6 @@
 function void main()
     num a = 2.
-    num b = 5.
+    num b = 4.
     num c = add(a, b).
 endFunction
 
@@ -14,6 +14,9 @@ when onHitByBullet()
 endWhen
 
 function void run()
+    if(2 == 2) do
+        num l = 2.
+    endIf
 endFunction
 
 when onHitWall()

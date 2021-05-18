@@ -33,7 +33,6 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
     /* 'when' ID '(' param ')' block 'endWhen' */
     @Override public SyntaxAnalysisType visitWhen(SyntaxAnalysisParser.WhenContext ctx) {
-        varEnv = new HashMap<>();
         SyntaxAnalysisWhenType eventHandler;
 
         if(wEnv.containsKey(ctx.id.getText())) {
@@ -46,9 +45,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
         Map<String, SyntaxAnalysisType> eventVars = eventHandler.getParameters();
 
-        for(Map.Entry<String, SyntaxAnalysisType> eventVar : eventVars.entrySet()) {
-            varEnv.put(eventVar.getKey(), eventVar.getValue());
-        }
+        varEnv = new HashMap<>(eventVars);
 
         visit(ctx.block());
 
@@ -445,6 +442,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
         for(SyntaxAnalysisParser.ExpressionContext expr : ctx.expression()) {
             if(!itr.hasNext()) {
                 addError(ctx, "Too many parameters");
+                return new SyntaxAnalysisVoid();
             }
 
             String expectedType = itr.next().getTypeName();
@@ -452,6 +450,10 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
             if(!(actualType.equals(expectedType))) {
                 addError(ctx, expectedType, actualType);
             }
+        }
+
+        if(itr.hasNext()){
+            addError(ctx, "Too few parameters");
         }
 
         return new SyntaxAnalysisVoid();

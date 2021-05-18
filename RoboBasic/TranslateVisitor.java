@@ -51,14 +51,16 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
 
         if(wEnv.containsKey(id)) {
             String content = visit(ctx.block());
-            Map<String, String> params = wEnv.get(ctx.id.getText()).getTranslatedParameters();
+            SyntaxAnalysisWhenType eventHandler = wEnv.get(ctx.id.getText());
+            Map<String, String> params = eventHandler.getTranslatedParameters();
+            String eventName = eventHandler.getEventName();
 
             for(Map.Entry<String, String> param : params.entrySet()) {
                 content = content.replace("_" + param.getKey(), param.getValue());
             }
 
             StringBuilder op = new StringBuilder();
-            op.append("\t").append("public void ").append(id).append("(").append(") {\n").append(content).append("\t").append("}\n");
+            op.append("\t").append("public void ").append(id).append("(").append(eventName).append(" event) {\n").append(content).append("\t").append("}\n");
 
             return op.toString();
         }

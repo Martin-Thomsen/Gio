@@ -19,11 +19,11 @@ public class EventCollect {
             SyntaxAnalysisWhenType event = new SyntaxAnalysisWhenType();
             String[] splitLine = line.split(",");
             String id = splitLine[0];
-            String variablePrefix = splitLine[1];
+            event.setEventName(splitLine[1]);
 
             for(int i = 2; i < splitLine.length; i++) {
                 String[] variable = splitLine[i].split(":");
-                event.addParameter(variable[1], getTypeFromString(variable[0]), variable[2], variablePrefix);
+                event.addParameter(variable[1], getTypeFromString(variable[0]), variable[2]);
             }
 
             wEnv.put(id, event);
