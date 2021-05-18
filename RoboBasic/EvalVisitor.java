@@ -357,8 +357,12 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
             type = visit(((SyntaxAnalysisParser.Var_declContext)ctx.getParent()).type());
         else if (ctx.getParent() instanceof SyntaxAnalysisParser.AssignContext)
             type = getIDFromToken(ctx, ((SyntaxAnalysisParser.AssignContext)ctx.getParent()).id);
-        else
-            addError(ctx, "Ternary expression can not be placed anywhere but in a declaration or assignment");
+        else {
+            if(!(visit(ctx.expression(1)).getTypeName().equals(visit(ctx.expression(2)).getTypeName())))
+                addError(ctx, "The two outcomes of the ternary expression are not of the same type");
+
+            return visit(ctx.expression(1));
+        }
 
         if(!(visit(ctx.expression(1)).getTypeName().equals(type.getTypeName()))) {
             addError(ctx, ctx.expression(1), type.getTypeName());
