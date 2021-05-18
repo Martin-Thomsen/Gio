@@ -9,12 +9,16 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     Map<String, SyntaxAnalysisType> varEnv;
     Map<String, SyntaxAnalysisFuncType> fEnv;
     Map<String, SyntaxAnalysisWhenType> wEnv;
+    Map<String, SyntaxAnalysisType> controlVariables;
     Vocabulary tokenVocabulary = SyntaxAnalysisLexer.VOCABULARY;
-    List<String> errors = new ArrayList<>();
+    List<String> errors;
 
-    public EvalVisitor(Map<String, SyntaxAnalysisFuncType> fEnv, Map<String, SyntaxAnalysisWhenType> wEnv, List<String> previousErrors) {
+    public EvalVisitor(Map<String, SyntaxAnalysisFuncType> fEnv, Map<String, SyntaxAnalysisWhenType> wEnv, ControlsCollect controlsCollect, List<String> previousErrors) {
         this.fEnv = fEnv;
+        controlsCollect.getControlFunctions().forEach(fEnv::putIfAbsent);
         this.wEnv = wEnv;
+        this.controlVariables = controlsCollect.getControlVariables();
+        resetVarEnv();
         errors = previousErrors;
     }
 
@@ -24,7 +28,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
 
     /* 'function' ftype ID '(' fparam ')' block 'endFunction' */
     @Override public SyntaxAnalysisType visitFunction(SyntaxAnalysisParser.FunctionContext ctx) {
-        varEnv = new HashMap<>();
+        resetVarEnv();
         visit(ctx.fparam());
         visit(ctx.block());
 
@@ -44,7 +48,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
         }
 
         Map<String, SyntaxAnalysisType> eventVars = eventHandler.getParameters();
-
+        resetVarEnv();
         varEnv = new HashMap<>(eventVars);
 
         visit(ctx.block());
@@ -520,5 +524,9 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
         }
 
         errors.add("Syntax error at line " + line + "." + charPos + ": Expected type " + expected + " but got type " + type + ".");
+    }
+
+    void resetVarEnv() {
+        varEnv = controlVariables;
     }
 }

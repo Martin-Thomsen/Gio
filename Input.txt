@@ -1,23 +1,19 @@
-function void main()
-    num a = 2.
-    num b = 4.
-    num c = add(a, b).
-endFunction
+function void run()
+    if(2 == 2) do
+        num l = 2.
+    endIf
 
-function num add(num x, num y)
-    return x + y.
+    ahead(4).
 endFunction
 
 when onHitByBullet()
     num a = bearing.
     num b = bulletHeading.
+    ahead(2).
+    scanForRobots().
+    num e = robotEnergy.
+    num ge = gunHeading.
 endWhen
-
-function void run()
-    if(2 == 2) do
-        num l = 2.
-    endIf
-endFunction
 
 when onHitWall()
     num a = bearing.

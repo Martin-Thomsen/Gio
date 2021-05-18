@@ -1,14 +1,4 @@
 public class RoboBasic {
-	public void _main() {
-		int _a = 2;
-		int _b = 4;
-		int _c = _add(_a, _b);
-	}
-
-	public int _add(int _x, int _y) {
-		return _x + _y;
-	}
-
 	public void run() {
 		if(2 == 2) {
 			int _l = 2;
@@ -18,6 +8,10 @@ public class RoboBasic {
 	public void onHitByBullet(HitByBulletEvent event) {
 		int _a = event.getBearing();
 		int _b = event.getBullet().getHeading();
+		ahead(2);
+		scan();
+		double _e = getEnergy();
+		double _ge = getGunHeading();
 	}
 
 	public void onHitWall(HitWallEvent event) {

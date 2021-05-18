@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class FuncCollect extends SyntaxAnalysisBaseVisitor<Map<String, SyntaxAnalysisFuncType>> {
     Map<String, SyntaxAnalysisFuncType> fEnv = new HashMap<>();
-    EvalVisitor evalVis = new EvalVisitor(new HashMap<>(), new HashMap<>(), new ArrayList<>());
+    EvalVisitor evalVis = new EvalVisitor(new HashMap<>(), new HashMap<>(), new ControlsCollect(), new ArrayList<>());
 
     public Map<String, SyntaxAnalysisFuncType> getEnvironment() {
         return fEnv;
@@ -69,5 +69,9 @@ public class FuncCollect extends SyntaxAnalysisBaseVisitor<Map<String, SyntaxAna
         fEnv.replace(id, func);
 
         return fEnv;
+    }
+
+    public void addFunctionToEnvironment(String id, SyntaxAnalysisFuncType func) {
+        fEnv.put(id, func);
     }
 }

@@ -1,0 +1,1 @@
+void:doNothing():doNothing(,num:robotEnergy:(d)getEnergy(),num:gunHeading:(d)getGunHeading(),num:robotHeading:(d)getHeading(),num:radarHeading:(d)getRadarHeading(),void:scanForRobots():scan(,void:ahead(num):ahead(,void:back(num):back(),void:fire(num):fire()

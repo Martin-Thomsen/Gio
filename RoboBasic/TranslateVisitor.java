@@ -8,9 +8,11 @@ import java.util.HashMap;
 public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
     Integer indentationCount = 0;
     Map<String, SyntaxAnalysisWhenType> wEnv;
+    ControlsCollect controlsCollect;
 
-    public TranslateVisitor(Map<String, SyntaxAnalysisWhenType> wEnv) {
+    public TranslateVisitor(Map<String, SyntaxAnalysisWhenType> wEnv, ControlsCollect controlsCollect) {
         this.wEnv = wEnv;
+        this.controlsCollect = controlsCollect;
     }
 
     @Override public String visitProgram(SyntaxAnalysisParser.ProgramContext ctx) {
@@ -39,6 +41,8 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
         String params = visit(ctx.fparam());
         String content = visit(ctx.block());
 
+        content = TranslateControls(content);
+
         StringBuilder op = new StringBuilder();
         op.append("\t").append("public ").append(returnType).append(" ").append(id).append("(").append(params).append(") {\n").append(content).append("\t").append("}\n");
 
@@ -48,9 +52,11 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
     /* 'when' ID '(' param ')' block 'endWhen' */
     @Override public String visitWhen(SyntaxAnalysisParser.WhenContext ctx) {
         String id = ctx.id.getText();
+        String content = visit(ctx.block());
+
+        content = TranslateControls(content);
 
         if(wEnv.containsKey(id)) {
-            String content = visit(ctx.block());
             SyntaxAnalysisWhenType eventHandler = wEnv.get(ctx.id.getText());
             Map<String, String> params = eventHandler.getTranslatedParameters();
             String eventName = eventHandler.getEventName();
@@ -439,7 +445,7 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
         op.append(id).append("(");
 
         String params = visit(ctx.param());
-        op.append(params).append(")");
+        op.append(params).append(");");
 
         return op.toString();
     }
@@ -516,5 +522,31 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
         }
 
         return op;
+    }
+
+    String TranslateControls(String content) {
+        String returnContent = content;
+
+        Map<String, String> controlFunctions = controlsCollect.getTranslatedControlFuncs();
+        for(Map.Entry<String, String> controlFunc : controlFunctions.entrySet()) {
+            returnContent = returnContent.replace("_" + controlFunc.getKey() + "(", controlFunc.getValue());
+        }
+
+        Map<String, String> controlVariables = controlsCollect.getTranslatedControlVars();
+        for(Map.Entry<String, String> controlVar : controlVariables.entrySet()) {
+            if(controlVar.getValue().contains("(d)")) {
+                int index = returnContent.indexOf("_" + controlVar.getKey());
+                while(index != -1) {
+                    int lastIndex = returnContent.substring(0, index).lastIndexOf("int");
+                    returnContent = returnContent.substring(0, lastIndex) + "double" + returnContent.substring(lastIndex + 3).replaceFirst("_" + controlVar.getKey(), controlVar.getValue().replace("(d)", ""));
+
+                    index = returnContent.indexOf("_" + controlVar.getKey());
+                }
+            } else {
+                returnContent = returnContent.replace("_" + controlVar.getKey(), controlVar.getValue());
+            }
+        }
+
+        return returnContent;
     }
 }

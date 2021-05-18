@@ -1,0 +1,4 @@
+Syntax error at line 14.12: Variable robotEnergy not found. Please assign a variable before attempting to use it.
+Syntax error at line 14.4: Expected type VOID but got type NUM.
+Syntax error at line 15.13: Variable gunHeading not found. Please assign a variable before attempting to use it.
+Syntax error at line 15.4: Expected type VOID but got type NUM.
