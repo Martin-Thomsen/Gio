@@ -385,7 +385,7 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
     }
 
     /* <assoc=right> expression bop='?' expression ':' expression */
-    @Override public String visitTertiary(SyntaxAnalysisParser.TertiaryContext ctx) {
+    @Override public String visitTernary(SyntaxAnalysisParser.TernaryContext ctx) {
         StringBuilder op = new StringBuilder();
 
         String expr1 = visit(ctx.expression(0));

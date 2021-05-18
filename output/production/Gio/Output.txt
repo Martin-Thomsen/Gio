@@ -15,13 +15,13 @@ public class RoboBasic {
 		}
 	}
 
-	public void onHitByBullet() {
-		int _a = HitByBulletEvent.getBearing();
-		int _b = HitByBulletEvent.getBullet().getHeading();
+	public void onHitByBullet(HitByBulletEvent event) {
+		int _a = event.getBearing();
+		int _b = event.getBullet().getHeading();
 	}
 
-	public void onHitWall() {
-		int _a = HitWallEvent.getBearing();
+	public void onHitWall(HitWallEvent event) {
+		int _a = event.getBearing();
 	}
 
 }
