@@ -346,7 +346,7 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     }
 
     /* <assoc=right> expression bop='?' expression ':' expression */
-    @Override public SyntaxAnalysisType visitTertiary(SyntaxAnalysisParser.TertiaryContext ctx) {
+    @Override public SyntaxAnalysisType visitTernary(SyntaxAnalysisParser.TernaryContext ctx) {
         if(!(visit(ctx.expression(0)) instanceof SyntaxAnalysisBool)) {
             addError(ctx, ctx.expression(0), "BOOL");
         }

@@ -199,14 +199,14 @@ public class SyntaxAnalysisBaseVisitor<T> extends AbstractParseTreeVisitor<T> im
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTertiary(SyntaxAnalysisParser.TertiaryContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAdd_sub(SyntaxAnalysisParser.Add_subContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAdd_sub(SyntaxAnalysisParser.Add_subContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTernary(SyntaxAnalysisParser.TernaryContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

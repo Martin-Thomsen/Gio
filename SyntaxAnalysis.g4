@@ -44,7 +44,7 @@ expression:         primary                                                     
                     | expression bop=('==' | '!=') expression                       #equal_notequal
                     | expression bop='&&' expression                                #logical_and
                     | expression bop='||' expression                                #logical_or
-                    | <assoc=right> expression bop='?' expression ':' expression    #tertiary
+                    | <assoc=right> expression bop='?' expression ':' expression    #ternary
                     ;
 
 primary:            '(' expression ')'      #parens

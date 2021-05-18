@@ -193,19 +193,19 @@ public interface SyntaxAnalysisVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitEqual_notequal(SyntaxAnalysisParser.Equal_notequalContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code tertiary}
-	 * labeled alternative in {@link SyntaxAnalysisParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTertiary(SyntaxAnalysisParser.TertiaryContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code add_sub}
 	 * labeled alternative in {@link SyntaxAnalysisParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitAdd_sub(SyntaxAnalysisParser.Add_subContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ternary}
+	 * labeled alternative in {@link SyntaxAnalysisParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTernary(SyntaxAnalysisParser.TernaryContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code mul_div_mod}
 	 * labeled alternative in {@link SyntaxAnalysisParser#expression}.

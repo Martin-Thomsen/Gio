@@ -1106,23 +1106,6 @@ public class SyntaxAnalysisParser extends Parser {
 			else return visitor.visitChildren(this);
 		}
 	}
-	public static class TertiaryContext extends ExpressionContext {
-		public Token bop;
-		public List<ExpressionContext> expression() {
-			return getRuleContexts(ExpressionContext.class);
-		}
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
-		public TerminalNode COLON() { return getToken(SyntaxAnalysisParser.COLON, 0); }
-		public TerminalNode QMARK() { return getToken(SyntaxAnalysisParser.QMARK, 0); }
-		public TertiaryContext(ExpressionContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SyntaxAnalysisVisitor ) return ((SyntaxAnalysisVisitor<? extends T>)visitor).visitTertiary(this);
-			else return visitor.visitChildren(this);
-		}
-	}
 	public static class Add_subContext extends ExpressionContext {
 		public Token bop;
 		public List<ExpressionContext> expression() {
@@ -1137,6 +1120,23 @@ public class SyntaxAnalysisParser extends Parser {
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof SyntaxAnalysisVisitor ) return ((SyntaxAnalysisVisitor<? extends T>)visitor).visitAdd_sub(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class TernaryContext extends ExpressionContext {
+		public Token bop;
+		public List<ExpressionContext> expression() {
+			return getRuleContexts(ExpressionContext.class);
+		}
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public TerminalNode COLON() { return getToken(SyntaxAnalysisParser.COLON, 0); }
+		public TerminalNode QMARK() { return getToken(SyntaxAnalysisParser.QMARK, 0); }
+		public TernaryContext(ExpressionContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SyntaxAnalysisVisitor ) return ((SyntaxAnalysisVisitor<? extends T>)visitor).visitTernary(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1331,12 +1331,12 @@ public class SyntaxAnalysisParser extends Parser {
 						break;
 					case 7:
 						{
-						_localctx = new TertiaryContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new TernaryContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(183);
 						if (!(precpred(_ctx, 1))) throw new FailedPredicateException(this, "precpred(_ctx, 1)");
 						setState(184);
-						((TertiaryContext)_localctx).bop = match(QMARK);
+						((TernaryContext)_localctx).bop = match(QMARK);
 						setState(185);
 						expression(0);
 						setState(186);
