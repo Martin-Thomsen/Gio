@@ -48,8 +48,8 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
         }
 
         Map<String, SyntaxAnalysisType> eventVars = eventHandler.getParameters();
-        resetVarEnv();
         varEnv = new HashMap<>(eventVars);
+        controlVariables.forEach(varEnv::putIfAbsent);
 
         visit(ctx.block());
 

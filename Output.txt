@@ -1,22 +1,22 @@
+package myRobot
+import robocode.*
+
 public class RoboBasic {
 	public void run() {
-		if(2 == 2) {
-			int _l = 2;
-		}
-		ahead(4);
+		ahead(50);
+		turnRight(90);
 	}
 
 	public void onHitByBullet(HitByBulletEvent event) {
-		int _a = event.getBearing();
-		int _b = event.getBullet().getHeading();
-		ahead(2);
-		scan();
-		double _e = getEnergy();
-		double _ge = getGunHeading();
+		double _a = getGunHeading();
+		double _b = event.getHeading();
+		turnGunRight(_a - _b);
+		fire(1);
 	}
 
 	public void onHitWall(HitWallEvent event) {
-		int _a = event.getBearing();
+		turnRight(180);
+		ahead(20);
 	}
 
 }

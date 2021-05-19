@@ -18,7 +18,7 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
     @Override public String visitProgram(SyntaxAnalysisParser.ProgramContext ctx) {
         StringBuilder op = new StringBuilder();
 
-        op.append("public class RoboBasic {\n");
+        op.append("package myRobot\nimport robocode.*\n\npublic class RoboBasic {\n");
         indentationCount++;
 
         for(SyntaxAnalysisParser.FuncContext func : ctx.func()) {
@@ -62,7 +62,17 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
             String eventName = eventHandler.getEventName();
 
             for(Map.Entry<String, String> param : params.entrySet()) {
-                content = content.replace("_" + param.getKey(), param.getValue());
+                if(param.getValue().contains("(d)")) {
+                    int index = content.indexOf("_" + param.getKey());
+                    while(index != -1) {
+                        int lastIndex = content.substring(0, index).lastIndexOf("int");
+                        content = content.substring(0, lastIndex) + "double" + content.substring(lastIndex + 3).replaceFirst("_" + param.getKey(), param.getValue().replace("(d)", ""));
+
+                        index = content.indexOf("_" + param.getKey());
+                    }
+                } else {
+                    content = content.replace("_" + param.getKey(), param.getValue());
+                }
             }
 
             StringBuilder op = new StringBuilder();
