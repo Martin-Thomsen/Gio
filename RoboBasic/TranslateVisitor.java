@@ -18,7 +18,7 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
     @Override public String visitProgram(SyntaxAnalysisParser.ProgramContext ctx) {
         StringBuilder op = new StringBuilder();
 
-        op.append("package myRobot\nimport robocode.*\n\npublic class RoboBasic {\n");
+        op.append("package myRobot;\nimport robocode.*;\n\npublic class RoboBasic extends Robot {\n");
         indentationCount++;
 
         for(SyntaxAnalysisParser.FuncContext func : ctx.func()) {
@@ -37,7 +37,7 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
     /* 'function' ftype ID '(' fparam ')' block return_Stmt 'endFunction' */
     @Override public String visitFunction(SyntaxAnalysisParser.FunctionContext ctx) {
         String returnType = visit(ctx.ftype());
-        String id = ctx.id.getText().equals("run") ? "run" : getIdFromToken(ctx.id);
+        String id = getIdFromToken(ctx.id);
         String params = visit(ctx.fparam());
         String content = visit(ctx.block());
 
@@ -57,7 +57,7 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
         content = TranslateControls(content);
 
         if(wEnv.containsKey(id)) {
-            SyntaxAnalysisWhenType eventHandler = wEnv.get(ctx.id.getText());
+            SyntaxAnalysisWhenType eventHandler = wEnv.get(id);
             Map<String, String> params = eventHandler.getTranslatedParameters();
             String eventName = eventHandler.getEventName();
 
@@ -111,31 +111,24 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
         addIndentation(op);
         op.append("}");
 
-        int exprAmount = 1;
-        int blockAmount = 1;
+        int i = 1;
 
-        while(true) {
-            if (ctx.expression(exprAmount) != null) {
-                String expr = visit(ctx.expression(exprAmount));
-                String block = visit(ctx.block(blockAmount));
+        while(ctx.expression(i) != null) {
+            String expr = visit(ctx.expression(i));
+            String block = visit(ctx.block(i));
 
-                op.append("\nelse if(").append(expr).append(") {\n").append(block);
-                addIndentation(op);
-                op.append("}");
-                exprAmount++;
-                blockAmount++;
-            }
-            else if(ctx.block(blockAmount) != null) {
-                String block = visit(ctx.block(blockAmount));
+            op.append("\nelse if(").append(expr).append(") {\n").append(block);
+            addIndentation(op);
+            op.append("}");
+            i++;
+        }
 
-                op.append("\nelse {\n").append(block);
-                addIndentation(op);
-                op.append("}");
-                break;
-            }
-            else {
-                break;
-            }
+        if(ctx.block(i) != null) {
+            String block = visit(ctx.block(i));
+
+            op.append("\nelse {\n").append(block);
+            addIndentation(op);
+            op.append("}");
         }
 
         return op.toString();
@@ -518,12 +511,12 @@ public class TranslateVisitor extends SyntaxAnalysisBaseVisitor<String>{
     }
 
     String getIdFromToken(Token idToken) {
-        StringBuilder op = new StringBuilder();
-
-        String writtenID = idToken.getText();
-        op.append("_").append(writtenID);
-
-        return op.toString();
+        String id = idToken.getText();
+        if(id == "run") {
+            return id;
+        } else {
+            return "_" + id;
+        }
     }
 
     StringBuilder addIndentation(StringBuilder op) {

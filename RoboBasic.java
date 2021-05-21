@@ -1,8 +1,8 @@
-package myRobot
-import robocode.*
+package myRobot;
+import robocode.*;
 
-public class RoboBasic {
-	public void run() {
+public class RoboBasic extends Robot {
+	public void _run() {
 		ahead(50);
 		turnRight(90);
 	}

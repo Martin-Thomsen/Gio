@@ -437,12 +437,17 @@ public class EvalVisitor extends SyntaxAnalysisBaseVisitor<SyntaxAnalysisType>{
     /* (expression (',' expression)*)? */
     @Override public SyntaxAnalysisType visitParameters(SyntaxAnalysisParser.ParametersContext ctx) {
         String funcID;
+
         if(ctx.getParent() instanceof SyntaxAnalysisParser.FuncCallContext) {
             funcID = ((SyntaxAnalysisParser.FuncCallContext)ctx.getParent()).ID().getText();
         }
         else {
             funcID = ((SyntaxAnalysisParser.FunctionContext)ctx.getParent()).ID().getText();
         }
+
+        if(!(fEnv.containsKey(funcID)))
+            return new SyntaxAnalysisVoid();
+
         SyntaxAnalysisFuncType func = fEnv.get(funcID);
         Collection<SyntaxAnalysisType> funcParams = func.getParameters().values();
         Iterator<SyntaxAnalysisType> itr = funcParams.iterator();
