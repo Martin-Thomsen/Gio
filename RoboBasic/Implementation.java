@@ -34,7 +34,7 @@ public class Implementation {
         List<String> errors = evalVisitor.getErrors();
 
         File errorFile = new File("C:\\Users\\m-s-t\\Documents\\GitHub\\Gio\\Errors.txt");
-        File outputFile = new File("C:\\Users\\m-s-t\\Documents\\GitHub\\Gio\\RoboBasic.java");
+        File outputFile = new File("C:\\Users\\m-s-t\\Documents\\GitHub\\Gio\\output\\RoboBasic.java");
         errorFile.createNewFile();
         outputFile.createNewFile();
 
