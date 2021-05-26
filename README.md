@@ -20,4 +20,4 @@ A programming language called RoboBasic, aimed at a young audience of 10-12 year
       ahead(20).
     endWhen
 
-With the setup on this Github repository, you can write your own program and place it in the "Input.txt" file, run the "Implementation.java" file and then grab the produced "RoboBasic.java" file from the output directory, create a new directory called "RoboBasic" in RoboCodes source directory and place the file there.
+With the setup on this Github repository, you can write your own program and place it in the "Input.txt" file, run the "Implementation.java" file and then grab the produced "RoboBasic.java" file from the output directory, create a new directory called "RoboBasic" in RoboCodes source directory and place the file there. The project has been created in IntelliJ IDEA 2020.3.2 with the plugin Antlr v4 and the dependencies antlr-4.9.2-complete.jar and junit:junit:4.13.2.
