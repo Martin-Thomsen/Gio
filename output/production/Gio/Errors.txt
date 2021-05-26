@@ -1,0 +1,2 @@
+Syntax error at line 4.4: Variable a not found. Please assign a variable before attempting to use it.
+Syntax error at line 4.4: Expected type NUM but got type VOID.

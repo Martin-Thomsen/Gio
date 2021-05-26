@@ -28,10 +28,13 @@ public class Implementation {
         EvalVisitor evalVisitor = new EvalVisitor(funcCollect.getEnvironment(), eventCollect.getEnvironment(), controlsCollect, funcCollect.getErrors());
         evalVisitor.visit(tree);
 
-        TranslateVisitor translateVisitor = new TranslateVisitor(eventCollect.getEnvironment(), controlsCollect);
-        String output = translateVisitor.visit(tree);
-
         List<String> errors = evalVisitor.getErrors();
+        String output = "";
+
+        if(errors.size() <= 0) {
+            TranslateVisitor translateVisitor = new TranslateVisitor(eventCollect.getEnvironment(), controlsCollect);
+            output = translateVisitor.visit(tree);
+        }
 
         File errorFile = new File("C:\\Users\\m-s-t\\Documents\\GitHub\\Gio\\Errors.txt");
         File outputFile = new File("C:\\Users\\m-s-t\\Documents\\GitHub\\Gio\\output\\RoboBasic.java");
