@@ -41,8 +41,28 @@ public class EvalVisitorTest {
         return GetErrorsFromInput(input).size() == 0;
     }
     
-    boolean WrongInput(String input) throws IOException {
-        return GetErrorsFromInput(input).size() > 0;
+    boolean WrongInput(String input, String line, String expectedError) throws IOException {
+        boolean shouldPass = false;
+
+        for(String error : GetErrorsFromInput(input)) {
+            if(error.contains("line " + line) && error.contains(expectedError)) {
+                shouldPass = true;
+            }
+        }
+
+        return shouldPass;
+    }
+
+    boolean WrongInput(String input, String line, String expectedType, String actualType) throws IOException {
+        boolean shouldPass = false;
+
+        for(String error: GetErrorsFromInput(input)) {
+            if(error.contains("line " + line) && error.contains("Expected type " + expectedType) && error.contains("got type " + actualType)) {
+                shouldPass = true;
+            }
+        }
+
+        return shouldPass;
     }
 
     @Test
@@ -53,7 +73,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.0", "Return value expected");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -68,7 +88,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.64", "NUM", "BOOL");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -83,7 +103,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.20", "BOOL", "DIGITS");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -98,7 +118,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.35", "NUM", "BOOL");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -113,7 +133,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.31", "BOOL", "NUM");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -128,7 +148,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.31", "BOOL", "NUM");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -143,7 +163,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.20", "VOID", "NUM");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -158,7 +178,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.20", "NUM", "BOOL");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -173,7 +193,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.31", "BOOL", "NUM");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -188,7 +208,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.35", "NUM", "BOOL");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -203,7 +223,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.20", "NUM", "BOOL");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -218,7 +238,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.43", "Return value expected");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -233,7 +253,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.20", "NUM", "BOOL");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -248,7 +268,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.20", "NUM", "BOOL");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -263,7 +283,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.20", "NUM", "BOOL");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -278,7 +298,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.20", "NUM", "BOOL");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -293,7 +313,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.20", "BOOL", "NUM");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -308,7 +328,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.28", "NUM", "BOOL");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -323,7 +343,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.28", "NUM", "BOOL");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -338,7 +358,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.20", "BOOL", "NUM");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -353,7 +373,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.20", "BOOL", "NUM");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -368,7 +388,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.29", "BOOL", "DIGITS");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -383,7 +403,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.29", "BOOL", "DIGITS");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -398,7 +418,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.28", "BOOL", "DIGITS");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -413,7 +433,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.39", "Variable c not found");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -428,7 +448,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.20", "Function with name test not found");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
@@ -443,7 +463,7 @@ public class EvalVisitorTest {
 
         // ACT
         boolean resultCorrect = CorrectInput(correctInput);
-        boolean resultWrong = WrongInput(wrongInput);
+        boolean resultWrong = WrongInput(wrongInput, "1.25", "Too few parameters");
 
         // ASSERT
         Assert.assertTrue(resultCorrect);
